@@ -94,35 +94,27 @@ def download_report():
     if not ai_engine.is_trained:
         return "Model belum dilatih! Silakan upload data dulu.", 400
         
-    # Ambil file terakhir yang diupload untuk dianalisis ulang grafiknya
-    # (Cara gampangnya: kita cari file excel di folder uploads)
     files = os.listdir(app.config['UPLOAD_FOLDER'])
     if not files:
         return "File data tidak ditemukan.", 404
-        
-    # Ambil file excel terakhir
+    
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], files[0])
     
-    # 1. Generate Data & Grafik dari ML Engine
-    data, err = ai_engine.generate_report_assets(filepath)
-    if err:
-        return f"Error: {err}", 500
-        
-    # 2. Buat PDF menggunakan Utils
-    pdf_bytes = utils.create_pdf_report(
-        stats=data['stats'],
-        metrics=data['metrics'],
-        best_model_name=data['best_model'],
-        img_pie=data['pie_bytes'],
-        img_cm=data['cm_bytes']
-    )
+    # 1. Generate Data Lengkap dari ML Engine
+    # (Pie, CM, Wordclouds, Bar Chart, Metrics)
+    report_data, err = ai_engine.generate_report_assets(filepath)
     
-    # 3. Kirim File ke Browser
+    if err:
+        return f"Error generate assets: {err}", 500
+        
+    # 2. Buat PDF (Cukup kirim report_data saja)
+    pdf_bytes = utils.create_pdf_report(report_data)
+    
     return send_file(
         io.BytesIO(pdf_bytes),
         mimetype='application/pdf',
         as_attachment=True,
-        download_name='Laporan_Analisis_SPH.pdf'
+        download_name='Laporan_Lengkap_SPH.pdf'
     )
 
 if __name__ == '__main__':
