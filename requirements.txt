@@ -1,14 +1,8 @@
-streamlit
+Flask
+Flask-SQLAlchemy
 pandas
 numpy
 scikit-learn
 matplotlib
-seaborn
 wordcloud
-plotly
-streamlit-option-menu
 openpyxl
-streamlit-lottie
-fpdf
-requests
-kaleido

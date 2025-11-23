@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SPH Sentiment AI</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Plus Jakarta Sans", sans-serif;
+      }
+    </style>
+    <!-- Chart JS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body class="bg-slate-50 text-slate-800">
+    <!-- NAVBAR -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+          <div class="flex items-center">
+            <span class="text-2xl font-bold text-red-700">🏥 SPH AI</span>
+          </div>
+          <div class="flex items-center space-x-8">
+            <a href="/" class="text-slate-600 hover:text-red-700 font-medium"
+              >Home</a
+            >
+            <a
+              href="/dashboard"
+              class="text-slate-600 hover:text-red-700 font-medium"
+              >Dashboard & Analisis</a
+            >
+            <a
+              href="/history"
+              class="text-slate-600 hover:text-red-700 font-medium"
+              >Database History</a
+            >
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- KONTEN UTAMA -->
+    <main class="min-h-screen">{% block content %}{% endblock %}</main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t mt-12 py-8 text-center text-slate-500">
+      <p>
+        &copy; 2025 Riset Semen Padang Hospital. Powered by Flask & Tailwind.
+      </p>
+    </footer>
+
+    <!-- Script Utama -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  </body>
+</html>
