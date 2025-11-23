@@ -4,232 +4,315 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from wordcloud import WordCloud
-from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report, confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score, f1_score
 from streamlit_option_menu import option_menu
+from streamlit_lottie import st_lottie
 import plotly.express as px
+import plotly.graph_objects as go
 
+# Import modul buatan sendiri
+import database
+import utils
+
+# ==========================================
+# 1. KONFIGURASI HALAMAN & STATE
+# ==========================================
 st.set_page_config(
-    page_title="Analisis Sentimen RS Semen Padang",
+    page_title="SPH Sentiment AI",
     page_icon="🏥",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
+# Inisialisasi Database
+database.init_db()
+
+# Custom CSS untuk UI Modern
 st.markdown("""
 <style>
-    [data-testid="stMetricValue"] {
-        font-size: 24px;
+    .stApp {background-color: #f8f9fa;}
+    .main-header {font-size: 2.5rem; color: #d32f2f; font-weight: 700;}
+    .sub-header {font-size: 1.2rem; color: #555;}
+    .card {
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
     }
-    h1, h2, h3 {
-        color: #d32f2f; /* Merah Semen Padang */
-    }
+    [data-testid="stMetricValue"] {font-size: 24px; color: #d32f2f;}
 </style>
 """, unsafe_allow_html=True)
 
-with st.sidebar:
-    st.image("LogoSPH.png", width=200)
-    st.title("Navigasi Riset")
-    
-    selected = option_menu(
-        menu_title=None,
-        options=["Dataset & Distribusi", "Wordcloud", "Model Naive Bayes", "Evaluasi & Hasil", "Prediksi Real-time"],
-        icons=["table", "cloud", "cpu", "graph-up", "search"],
-        menu_icon="cast",
-        default_index=0,
-        styles={
-            "nav-link-selected": {"background-color": "#d32f2f"},
-        }
-    )
-    st.info("Aplikasi ini disusun berdasarkan metodologi Naive Bayes Classifier.")
+# ==========================================
+# 2. FUNGSI LOGIKA (BACKEND)
+# ==========================================
 
-#Load Data
 @st.cache_data
 def load_data(file):
     df = pd.read_excel(file)
     return df
 
-#Training Model
-def train_model(df):
+def train_comparative_models(df):
+    """Melatih 3 Model sekaligus untuk Perbandingan"""
     X = df['Komentar Bersih'].astype(str)
     y = df['Label']
     
-    # TF-IDF
-    tfidf = TfidfVectorizer(max_features=1000)
+    tfidf = TfidfVectorizer(max_features=2000)
     X_tfidf = tfidf.fit_transform(X)
-    
-    # Split Data
     X_train, X_test, y_train, y_test = train_test_split(X_tfidf, y, test_size=0.3, random_state=42)
     
-    # Naive Bayes Classifier
-    model = MultinomialNB()
-    model.fit(X_train, y_train)
+    models = {
+        "Naive Bayes": MultinomialNB(),
+        "Logistic Regression": LogisticRegression(max_iter=1000),
+        "SVM (Linear)": SVC(kernel='linear', probability=True)
+    }
     
-    y_pred = model.predict(X_test)
+    results = {}
+    trained_models = {}
     
-    return model, tfidf, y_test, y_pred, X_test
+    for name, model in models.items():
+        model.fit(X_train, y_train)
+        y_pred = model.predict(X_test)
+        acc = accuracy_score(y_test, y_pred)
+        f1 = f1_score(y_test, y_pred, pos_label='Positif', average='weighted')
+        results[name] = {"Accuracy": acc, "F1-Score": f1, "y_pred": y_pred}
+        trained_models[name] = model
+        
+    return results, trained_models, tfidf, X_test, y_test
 
-#Dataset
-if selected == "Dataset & Distribusi":
-    st.title("📂 Eksplorasi Data Ulasan")
-    st.markdown("Halaman ini menampilkan data bersih hasil *preprocessing* dan distribusi sentimen.")
+# ==========================================
+# 3. SIDEBAR & NAVIGASI
+# ==========================================
+with st.sidebar:
+    st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Logo_Semen_Padang_Hospital.png/320px-Logo_Semen_Padang_Hospital.png", width=180)
+    st.markdown("---")
     
-    uploaded_file = st.file_uploader("Upload file Excel (Dataset Bersih)", type=['xlsx'])
+    selected = option_menu(
+        menu_title="Main Menu",
+        options=["Home", "Dataset & Aspek", "Komparasi Model", "Evaluasi & Laporan", "Prediksi & History"],
+        icons=["house", "table", "bar-chart-steps", "file-earmark-pdf", "clock-history"],
+        menu_icon="list",
+        default_index=0,
+        styles={"nav-link-selected": {"background-color": "#d32f2f"}}
+    )
+    
+    st.markdown("---")
+    st.caption("© 2025 Riset Semen Padang Hospital")
+
+# ==========================================
+# 4. KONTEN HALAMAN UTAMA
+# ==========================================
+
+# --- MENU: HOME (LANDING PAGE) ---
+if selected == "Home":
+    col_hero, col_anim = st.columns([1.5, 1])
+    
+    with col_hero:
+        st.markdown('<div class="main-header">Sistem Analisis Sentimen Cerdas</div>', unsafe_allow_html=True)
+        st.markdown('<div class="sub-header">Membantu Manajemen Rumah Sakit Semen Padang memahami kepuasan pasien melalui ulasan Google Maps menggunakan Kecerdasan Buatan.</div>', unsafe_allow_html=True)
+        st.write("")
+        st.write("🚀 **Fitur Unggulan:**")
+        st.write("✅ **Multi-Model AI:** Membandingkan Naive Bayes, SVM, & Logistic Regression.")
+        st.write("✅ **Aspect Filtering:** Analisis spesifik (Dokter, Antrian, Parkir).")
+        st.write("✅ **PDF Reporting:** Download laporan otomatis untuk rapat direksi.")
+        st.write("✅ **Database History:** Menyimpan riwayat prediksi.")
+        
+        st.info("Silakan pilih menu di sidebar untuk memulai analisis.")
+
+    with col_anim:
+        # Load animasi robot/dokter
+        lottie_url = "https://assets5.lottiefiles.com/packages/lf20_5njp3vgg.json" 
+        lottie_json = utils.load_lottieurl(lottie_url)
+        st_lottie(lottie_json, height=400)
+
+# --- MENU: DATASET & ASPEK (ASPECT BASED) ---
+elif selected == "Dataset & Aspek":
+    st.title("📂 Dataset & Filter Aspek")
+    
+    uploaded_file = st.file_uploader("Upload Data Excel (Bersih)", type=['xlsx'])
     
     if uploaded_file:
         df = load_data(uploaded_file)
         st.session_state['df'] = df
         
-        col1, col2 = st.columns([2, 1])
+        # --- FITUR INOVASI: FILTER ASPEK ---
+        st.markdown("### 🔍 Filter Berdasarkan Topik (Aspect-Based)")
+        keyword = st.text_input("Cari kata kunci spesifik (misal: 'dokter', 'antrian', 'obat'):", "")
         
-        with col1:
-            st.subheader("Tabel Data Bersih")
-            st.dataframe(df.head(10), use_container_width=True)
-            st.caption(f"Total Data: {df.shape[0]} baris.")
+        if keyword:
+            filtered_df = df[df['Komentar Bersih'].str.contains(keyword, case=False, na=False)]
+            st.success(f"Ditemukan {len(filtered_df)} ulasan mengandung kata '{keyword}'.")
+        else:
+            filtered_df = df
             
-        with col2:
-            st.subheader("Distribusi Sentimen")
-            count_data = df['Label'].value_counts().reset_index()
-            count_data.columns = ['Label', 'Jumlah']
-            fig = px.pie(count_data, values='Jumlah', names='Label', 
-                         color='Label', color_discrete_map={'Positif':'#66b3ff', 'Negatif':'#ff9999'},
-                         title='Persentase Sentimen')
-            st.plotly_chart(fig, use_container_width=True)
-
-#Wordcloud
-elif selected == "Wordcloud":
-    st.title("☁️ Visualisasi Wordcloud")
-    st.markdown("Visualisasi kata yang paling sering muncul pada ulasan Positif dan Negatif (Sesuai **Jurnal Hal 736, Gambar 9 & 10**).")
-    
-    if 'df' in st.session_state:
-        df = st.session_state['df']
-        
-        col1, col2 = st.columns(2)
-        
-        # Wordcloud Positif
+        col1, col2 = st.columns([2, 1])
         with col1:
-            st.subheader("Wordcloud Sentimen Positif")
-            text_pos = " ".join(df[df['Label'] == 'Positif']['Komentar Bersih'].astype(str))
-            if text_pos:
-                wc_pos = WordCloud(width=800, height=400, background_color='white', colormap='Greens').generate(text_pos)
-                fig, ax = plt.subplots()
-                ax.imshow(wc_pos, interpolation='bilinear')
-                ax.axis("off")
-                st.pyplot(fig)
-            else:
-                st.warning("Tidak ada data positif.")
-
-        # Wordcloud Negatif
+            st.dataframe(filtered_df.head(10), use_container_width=True)
         with col2:
-            st.subheader("Wordcloud Sentimen Negatif")
-            text_neg = " ".join(df[df['Label'] == 'Negatif']['Komentar Bersih'].astype(str))
-            if text_neg:
-                wc_neg = WordCloud(width=800, height=400, background_color='white', colormap='Reds').generate(text_neg)
-                fig, ax = plt.subplots()
-                ax.imshow(wc_neg, interpolation='bilinear')
-                ax.axis("off")
-                st.pyplot(fig)
-            else:
-                st.warning("Tidak ada data negatif.")
+            # Distribusi Sentimen Interaktif
+            fig = px.pie(filtered_df, names='Label', title=f"Sentimen untuk: {keyword if keyword else 'Semua Data'}",
+                         color='Label', color_discrete_map={'Positif':'#2ecc71', 'Negatif':'#e74c3c'})
+            st.plotly_chart(fig, use_container_width=True)
+            
+        # Wordcloud untuk Data Terfilter
+        st.subheader(f"Apa kata mereka tentang '{keyword if keyword else 'Semua'}'?")
+        text = " ".join(filtered_df['Komentar Bersih'].astype(str))
+        if text:
+            wc = WordCloud(width=800, height=300, background_color='white').generate(text)
+            fig_wc, ax = plt.subplots()
+            ax.imshow(wc, interpolation='bilinear')
+            ax.axis("off")
+            st.pyplot(fig_wc)
     else:
-        st.error("Silakan upload data terlebih dahulu di menu 'Dataset'.")
+        st.warning("Upload data dataset_bersih.xlsx terlebih dahulu.")
 
-#Model Naive Bayes
-elif selected == "Model Naive Bayes":
-    st.title("⚙️ Pemodelan Naive Bayes")
-    st.markdown("Proses transformasi TF-IDF dan Pelatihan Model (Sesuai **Jurnal Hal 735**).")
+# --- MENU: KOMPARASI MODEL (BENCHMARKING) ---
+elif selected == "Komparasi Model":
+    st.title("⚖️ Perbandingan Algoritma AI")
+    st.markdown("Membandingkan performa Naive Bayes dengan model lain untuk membuktikan validitas metode.")
     
     if 'df' in st.session_state:
         df = st.session_state['df']
         
-        if st.button("Mulai Training Model"):
-            with st.spinner("Sedang melatih model..."):
-                model, tfidf, y_test, y_pred, X_test = train_model(df)
+        if st.button("Latih & Bandingkan Semua Model"):
+            with st.spinner("Melatih Naive Bayes, SVM, dan Logistic Regression..."):
+                results, trained_models, tfidf, X_test, y_test = train_comparative_models(df)
                 
-                st.session_state['model'] = model
+                # Simpan ke session state
+                st.session_state['results'] = results
+                st.session_state['trained_models'] = trained_models
                 st.session_state['tfidf'] = tfidf
                 st.session_state['y_test'] = y_test
-                st.session_state['y_pred'] = y_pred
+                st.session_state['X_test'] = X_test # Perlu untuk report
                 
-            st.success("Model berhasil dilatih!")
+            # Visualisasi Perbandingan Akurasi
+            res_df = pd.DataFrame(results).T.reset_index()
+            res_df.rename(columns={'index': 'Model'}, inplace=True)
             
-            st.markdown("### Detail Parameter:")
-            st.write("- **Metode:** Multinomial Naive Bayes")
-            st.write("- **Feature Extraction:** TF-IDF (Term Frequency-Inverse Document Frequency)")
-            st.write("- **Data Split:** 70% Training, 30% Testing")
+            st.subheader("Hasil Akurasi Model")
+            fig_bar = px.bar(res_df, x='Model', y='Accuracy', color='Model', text_auto='.2%',
+                             title="Perbandingan Tingkat Akurasi")
+            st.plotly_chart(fig_bar, use_container_width=True)
+            
+            # Highlight Pemenang
+            best_model = res_df.loc[res_df['Accuracy'].idxmax()]
+            st.success(f"🏆 Model Terbaik: **{best_model['Model']}** dengan Akurasi {best_model['Accuracy']*100:.2f}%")
+            
     else:
-        st.error("Silakan upload data terlebih dahulu.")
+        st.error("Silakan upload data di menu Dataset.")
 
-#Evaluasi
-elif selected == "Evaluasi & Hasil":
-    st.title("📊 Evaluasi Kinerja Model")
-    st.markdown("Menampilkan Confusion Matrix dan Metrik Akurasi (Sesuai **Jurnal Hal 736, Tabel 9 & Gambar 8**).")
+# --- MENU: EVALUASI & LAPORAN (PDF REPORT) ---
+elif selected == "Evaluasi & Laporan":
+    st.title("📊 Evaluasi Mendalam & Laporan")
     
-    if 'y_test' in st.session_state:
+    if 'results' in st.session_state:
+        results = st.session_state['results']
+        model_name = st.selectbox("Pilih Model untuk Dievaluasi Detail:", list(results.keys()))
+        
         y_test = st.session_state['y_test']
-        y_pred = st.session_state['y_pred']
+        y_pred = results[model_name]['y_pred']
         
-        acc = accuracy_score(y_test, y_pred)
-        prec = precision_score(y_test, y_pred, pos_label='Positif', average='weighted')
-        rec = recall_score(y_test, y_pred, pos_label='Positif', average='weighted')
-        f1 = f1_score(y_test, y_pred, pos_label='Positif', average='weighted')
-
-        col1, col2, col3, col4 = st.columns(4)
-        col1.metric("Accuracy", f"{acc*100:.2f}%")
-        col2.metric("Precision", f"{prec*100:.2f}%")
-        col3.metric("Recall", f"{rec*100:.2f}%")
-        col4.metric("F1-Score", f"{f1*100:.2f}%")
-        
-        st.divider()
-
-        col_cm, col_rep = st.columns([1, 2])
-        
-        with col_cm:
+        # 1. Confusion Matrix
+        col1, col2 = st.columns(2)
+        with col1:
             st.subheader("Confusion Matrix")
             cm = confusion_matrix(y_test, y_pred)
-            labels = sorted(list(set(y_test)))
-            
             fig_cm, ax = plt.subplots()
-            sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=labels, yticklabels=labels, ax=ax)
-            plt.ylabel('Actual')
-            plt.xlabel('Predicted')
+            sns.heatmap(cm, annot=True, fmt='d', cmap='Reds', ax=ax)
             st.pyplot(fig_cm)
             
-        with col_rep:
-            st.subheader("Classification Report")
+        with col2:
+            st.subheader("Metrik Performa")
             report = classification_report(y_test, y_pred, output_dict=True)
-            df_report = pd.DataFrame(report).transpose()
-            st.dataframe(df_report.style.highlight_max(axis=0), use_container_width=True)
+            st.dataframe(pd.DataFrame(report).T.style.highlight_max(axis=0))
+
+        # --- FITUR INOVASI: PDF DOWNLOAD ---
+        st.markdown("---")
+        st.subheader("📄 Generate Laporan Manajerial")
+        st.markdown("Unduh laporan otomatis siap cetak untuk presentasi manajemen.")
+        
+        if st.button("Buat Laporan PDF"):
+            # Siapkan Data untuk PDF
+            df = st.session_state['df']
+            counts = df['Label'].value_counts(normalize=True) * 100
+            pos_pct = counts.get('Positif', 0)
+            neg_pct = counts.get('Negatif', 0)
+            acc = results[model_name]['Accuracy'] * 100
+            f1 = results[model_name]['F1-Score'] * 100
+            
+            # Buat Grafik Pie khusus untuk PDF (Plotly static)
+            fig_pie_static = px.pie(values=[pos_pct, neg_pct], names=['Positif', 'Negatif'])
+            
+            # Generate
+            pdf_bytes = utils.generate_pdf(len(df), pos_pct, neg_pct, acc, f1, fig_pie_static, fig_cm)
+            
+            st.download_button(
+                label="📥 Download Laporan PDF",
+                data=pdf_bytes,
+                file_name="Laporan_Analisis_Sentimen_SPH.pdf",
+                mime="application/pdf"
+            )
             
     else:
-        st.warning("Model belum dilatih. Silakan pergi ke menu 'Model Naive Bayes' dan klik tombol Training.")
+        st.warning("Latih model terlebih dahulu di menu Komparasi Model.")
 
-#Prediksi
-elif selected == "Prediksi Real-time":
-    st.title("🤖 Uji Coba Prediksi")
-    st.markdown("Uji model yang telah dilatih dengan memasukkan ulasan baru.")
+# --- MENU: PREDIKSI & HISTORY (DATABASE) ---
+elif selected == "Prediksi & History":
+    st.title("🤖 Prediksi & Database")
     
-    if 'model' in st.session_state:
-        model = st.session_state['model']
+    if 'trained_models' in st.session_state:
+        models = st.session_state['trained_models']
         tfidf = st.session_state['tfidf']
         
-        input_text = st.text_area("Masukkan ulasan tentang RS Semen Padang:", placeholder="Contoh: Pelayanan sangat ramah dan cepat.")
+        # Tab Navigasi dalam Halaman
+        tab1, tab2 = st.tabs(["Uji Coba Prediksi", "Riwayat Database"])
         
-        if st.button("Analisis Sentimen"):
-            if input_text:
-                text_vector = tfidf.transform([input_text])
-                prediction = model.predict(text_vector)[0]
-                proba = model.predict_proba(text_vector)
+        with tab1:
+            col_input, col_res = st.columns([2, 1])
+            with col_input:
+                input_text = st.text_area("Masukkan ulasan baru:", height=100)
+                active_model = st.selectbox("Pilih Model Prediksi:", list(models.keys()))
                 
-                st.divider()
-                if prediction == "Positif":
-                    st.success(f"**Hasil: POSITIF**")
-                else:
-                    st.error(f"**Hasil: NEGATIF**")
+            with col_res:
+                st.write("") # Spacer
+                st.write("") 
+                if st.button("Analisis Sekarang", type="primary"):
+                    if input_text:
+                        # Proses Prediksi
+                        vec = tfidf.transform([input_text])
+                        model = models[active_model]
+                        pred = model.predict(vec)[0]
+                        proba = np.max(model.predict_proba(vec)) * 100
+                        
+                        # Tampilkan Hasil
+                        if pred == "Positif":
+                            st.success(f"**POSITIF** ({proba:.2f}%)")
+                        else:
+                            st.error(f"**NEGATIF** ({proba:.2f}%)")
+                            
+                        # SIMPAN KE DATABASE
+                        database.save_prediction(input_text, pred, proba, active_model)
+                        st.toast("Data berhasil disimpan ke Database!", icon="💾")
+                    else:
+                        st.warning("Input teks kosong!")
+                        
+        with tab2:
+            st.subheader("📚 Riwayat Prediksi (SQLite)")
+            if st.button("Refresh Data"):
+                st.rerun()
                 
-                st.write(f"Confidence Score: {np.max(proba)*100:.2f}%")
-            else:
-                st.warning("Mohon masukkan teks ulasan.")
+            history_df = database.load_history()
+            st.dataframe(history_df, use_container_width=True)
+            
+            if st.button("Hapus Riwayat"):
+                database.clear_history()
+                st.rerun()
+                
     else:
-        st.error("Model belum siap. Lakukan training data terlebih dahulu.")
+        st.error("Model belum siap. Lakukan training dahulu.")
