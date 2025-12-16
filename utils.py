@@ -168,5 +168,5 @@ def create_pdf_report(data):
     for p in points:
         pdf.set_x(15)
         pdf.multi_cell(180, 7, p)
-
-    return pdf.output(dest='S').encode('latin-1', 'ignore')
+        
+    return pdf.output(dest='S')
