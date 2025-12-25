@@ -1,0 +1,49 @@
+/* static/css/style.css */
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    color: #0d6efd !important; /* Biru Medis */
+}
+
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.sentiment-positive {
+    color: #198754;
+    font-weight: bold;
+}
+
+.sentiment-negative {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.score-high { color: #198754; }
+.score-mid { color: #ffc107; }
+.score-low { color: #dc3545; }
+
+/* static/style.css */
+.hover-effect {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-effect:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15) !important;
+}
+
+textarea {
+    resize: none;
+}

@@ -8,20 +8,12 @@ wordcloud
 openpyxl
 Flask
 seaborn  
-
-# Server WSGI untuk menjalankan Flask di lingkungan produksi (seperti Docker)
 gunicorn
-
-# Untuk membaca dan memanipulasi file Excel (.xlsx)
+openpyxl
+nltk
+Sastrawi
 pandas
 openpyxl
-
-# Untuk Natural Language Processing (stopwords, tokenization)
-nltk
-
-# Untuk stemming Bahasa Indonesia
-Sastrawi
-
-# Untuk machine learning (misalnya, TF-IDF, model klasifikasi)
 scikit-learn
-fpdf2 
+pytz      
+fpdf   

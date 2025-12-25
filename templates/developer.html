@@ -1,0 +1,463 @@
+{% extends "base.html" %} {% block content %}
+<!-- HEADER & TOMBOL DOWNLOAD -->
+<div class="d-flex justify-content-between align-items-center mb-5">
+  <div>
+    <h2 class="fw-bold text-dark">
+      <i class="fas fa-code me-2"></i>Developer Console
+    </h2>
+    <p class="text-muted mb-0">
+      Pusat kendali evaluasi model, visualisasi teks, dan diagnostik.
+    </p>
+  </div>
+  <a href="{{ url_for('download_report') }}" class="btn btn-dark shadow-sm">
+    <i class="fas fa-file-pdf me-2"></i>Download Laporan Lengkap
+  </a>
+</div>
+
+<div class="row mb-5">
+  <div class="col-md-12">
+    <div class="card bg-white border-0 shadow-sm">
+      <div class="card-body p-4">
+        <div class="row align-items-center">
+          <div class="col-md-5">
+            <h5
+              class="fw-bold text-dark border-start border-4 border-primary ps-3 mb-3"
+            >
+              Model Health Check
+            </h5>
+            <div class="d-flex align-items-center mb-4">
+              <div class="me-4">
+                <h1 class="display-4 fw-bold text-primary mb-0">
+                  {{ metrics.accuracy }}%
+                </h1>
+                <small class="text-muted fw-bold">TEST ACCURACY</small>
+              </div>
+              <div class="me-4">
+                <h1 class="display-6 fw-bold text-secondary mb-0">
+                  {{ metrics.train_accuracy }}%
+                </h1>
+                <small class="text-muted">TRAIN ACCURACY</small>
+              </div>
+            </div>
+            <div
+              class="alert {% if metrics.status == 'Good Fit (Ideal)' %}alert-success{% else %}alert-warning{% endif %}"
+            >
+              <strong>Status: {{ metrics.status }}</strong><br />
+              {{ metrics.advice }}
+            </div>
+          </div>
+
+          <!-- GRAFIK LEARNING CURVE -->
+          <div class="col-md-7 text-center border-start">
+            <h6 class="text-muted mb-3">
+              Grafik Learning Curve (Visualisasi Overfitting)
+            </h6>
+            <!-- Kita ambil gambar Learning Curve dari backend -->
+            <!-- Karena gambar ini di-generate saat training, kita bisa minta lewat API atau render langsung -->
+            <!-- Di sini kita pakai cara simple: minta user training ulang atau pakai gambar statis jika ada -->
+            <!-- TAPI, agar mudah, kita asumsikan ai_brain menyimpan base64 di app.py dan dikirim ke sini -->
+
+            <!-- *NB: Anda perlu mengirim 'learning_curve' dari app.py ke render_template* -->
+            {% if learning_curve %}
+            <img
+              src="data:image/png;base64,{{ learning_curve }}"
+              class="img-fluid rounded border"
+            />
+            {% else %}
+            <div class="py-5 bg-light rounded text-muted">
+              Grafik tersedia setelah training ulang.
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =================================================================== -->
+<!-- SECTION 1: GLOBAL LANDSCAPE (Langsung Tampil) -->
+<!-- =================================================================== -->
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card bg-white border-0 shadow-sm">
+      <div class="card-body">
+        <h5 class="fw-bold border-start border-4 border-primary ps-3 mb-4">
+          1. Global Landscape & Model Metrics
+        </h5>
+
+        <!-- Metrik Baris -->
+        <div class="row text-center mb-4 g-3">
+          <div class="col-md-3">
+            <div class="p-3 border rounded bg-light">
+              <h3 class="fw-bold text-primary mb-0">{{ metrics.accuracy }}%</h3>
+              <small class="text-muted text-uppercase fw-bold">Accuracy</small>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="p-3 border rounded bg-light">
+              <h3 class="fw-bold text-success mb-0">
+                {{ metrics.precision }}%
+              </h3>
+              <small class="text-muted text-uppercase fw-bold">Precision</small>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="p-3 border rounded bg-light">
+              <h3 class="fw-bold text-warning mb-0">{{ metrics.recall }}%</h3>
+              <small class="text-muted text-uppercase fw-bold">Recall</small>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="p-3 border rounded bg-light">
+              <h3 class="fw-bold text-info mb-0">{{ metrics.f1_score }}%</h3>
+              <small class="text-muted text-uppercase fw-bold">F1 Score</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Wordcloud Global -->
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card border-success h-100">
+              <div
+                class="card-header bg-success text-white fw-bold text-center"
+              >
+                GLOBAL POSITIF (Semua Data)
+              </div>
+              <div class="card-body text-center p-1">
+                {% if wc_pos %}
+                <img
+                  src="data:image/png;base64,{{ wc_pos }}"
+                  class="img-fluid rounded"
+                />
+                {% else %}
+                <p class="py-5 text-muted">Belum ada data.</p>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card border-danger h-100">
+              <div class="card-header bg-danger text-white fw-bold text-center">
+                GLOBAL NEGATIF (Semua Data)
+              </div>
+              <div class="card-body text-center p-1">
+                {% if wc_neg %}
+                <img
+                  src="data:image/png;base64,{{ wc_neg }}"
+                  class="img-fluid rounded"
+                />
+                {% else %}
+                <p class="py-5 text-muted">Belum ada data.</p>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =================================================================== -->
+<!-- SECTION 2: WORDCLOUD PER RUMAH SAKIT -->
+<!-- =================================================================== -->
+<div class="row mb-5">
+  <div class="col-12">
+    <div class="card bg-white border-0 shadow-sm">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h5 class="fw-bold border-start border-4 border-info ps-3 mb-0">
+            2. Wordcloud Viewer
+          </h5>
+
+          <!-- Dropdown Section 2 -->
+          <select class="form-select w-25 border-info" id="wcSelector">
+            <option value="" selected disabled>
+              -- Pilih RS untuk Lihat Wordcloud --
+            </option>
+            {% for rs in hospitals %}
+            <option value="{{ rs }}">{{ rs }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Loading 2 -->
+        <div id="loadingWC" class="text-center py-5" style="display: none">
+          <div class="spinner-border text-info" role="status"></div>
+        </div>
+
+        <!-- Hasil Section 2 -->
+        <div class="row" id="wcResult" style="display: none">
+          <div class="col-md-6">
+            <div class="text-center">
+              <h6 class="text-success fw-bold">Sentimen Positif</h6>
+              <img
+                id="imgPosSpecific"
+                src=""
+                class="img-fluid rounded border mb-2"
+              />
+              <p id="msgPosSpecific" class="d-none text-muted small">
+                Data tidak cukup.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="text-center">
+              <h6 class="text-danger fw-bold">Sentimen Negatif</h6>
+              <img
+                id="imgNegSpecific"
+                src=""
+                class="img-fluid rounded border mb-2"
+              />
+              <p id="msgNegSpecific" class="d-none text-muted small">
+                Data tidak cukup.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =================================================================== -->
+<!-- SECTION 3: DIAGNOSTIC CENTER (COMPARISON) -->
+<!-- =================================================================== -->
+<div class="row mb-5">
+  <div class="col-12">
+    <div class="card bg-white border-0 shadow-sm">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h5 class="fw-bold border-start border-4 border-warning ps-3 mb-0">
+            3. Diagnostic Center (Evaluasi)
+          </h5>
+
+          <!-- Dropdown Section 3 -->
+          <select class="form-select w-25 border-warning" id="diagSelector">
+            <option value="" selected disabled>
+              -- Pilih RS untuk Evaluasi --
+            </option>
+            {% for rs in hospitals %}
+            <option value="{{ rs }}">{{ rs }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="alert alert-warning border-0 shadow-sm">
+          <small
+            ><i class="fas fa-info-circle me-1"></i> Membandingkan dataset
+            training (Masa Lalu) dengan inputan user saat ini
+            (Real-time).</small
+          >
+        </div>
+
+        <!-- Loading 3 -->
+        <div id="loadingDiag" class="text-center py-5" style="display: none">
+          <div class="spinner-grow text-warning" role="status"></div>
+          <p class="mt-2 text-muted">
+            AI sedang menganalisis perubahan tren...
+          </p>
+        </div>
+
+        <!-- Hasil Section 3 -->
+        <div id="diagResult" style="display: none">
+          <!-- Teks Analisis -->
+          <div class="card bg-light border-0 mb-4">
+            <div class="card-body">
+              <h6 class="fw-bold text-dark mb-3">
+                <i class="fas fa-robot me-2"></i>Kesimpulan AI
+              </h6>
+              <div class="row">
+                <div class="col-md-6 border-end">
+                  <span class="badge bg-danger mb-2">Analisis Keluhan</span>
+                  <p id="txtAnalysisNeg" class="text-muted mb-0">...</p>
+                </div>
+                <div class="col-md-6">
+                  <span class="badge bg-success mb-2">Analisis Kekuatan</span>
+                  <p id="txtAnalysisPos" class="text-muted mb-0">...</p>
+                </div>
+              </div>
+              <div class="text-end mt-3">
+                <a
+                  id="btnDownloadSpecific"
+                  href="#"
+                  class="btn btn-sm btn-dark"
+                >
+                  <i class="fas fa-file-pdf me-1"></i> Download Laporan RS Ini
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gambar Perbandingan -->
+          <div class="row">
+            <!-- Masa Lalu -->
+            <div class="col-md-6">
+              <div class="card h-100 border-secondary">
+                <div
+                  class="card-header bg-secondary text-white text-center fw-bold"
+                >
+                  MASA LALU
+                </div>
+                <div class="card-body">
+                  <div class="mb-3 text-center">
+                    <small class="text-danger fw-bold">Keluhan Lama</small>
+                    <img
+                      id="imgNegPast"
+                      src=""
+                      class="img-fluid rounded border"
+                    />
+                  </div>
+                  <div class="text-center">
+                    <small class="text-success fw-bold">Kekuatan Lama</small>
+                    <img
+                      id="imgPosPast"
+                      src=""
+                      class="img-fluid rounded border"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Masa Depan -->
+            <div class="col-md-6">
+              <div class="card h-100 border-primary">
+                <div
+                  class="card-header bg-primary text-white text-center fw-bold"
+                >
+                  MASA SEKARANG (LIVE)
+                </div>
+                <div class="card-body">
+                  <div class="mb-3 text-center">
+                    <small class="text-danger fw-bold">Keluhan Baru</small>
+                    <img
+                      id="imgNegLive"
+                      src=""
+                      class="img-fluid rounded border"
+                    />
+                    <p id="msgNegLive" class="d-none text-muted small">
+                      Data belum cukup.
+                    </p>
+                  </div>
+                  <div class="text-center">
+                    <small class="text-success fw-bold">Kekuatan Baru</small>
+                    <img
+                      id="imgPosLive"
+                      src=""
+                      class="img-fluid rounded border"
+                    />
+                    <p id="msgPosLive" class="d-none text-muted small">
+                      Data belum cukup.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JAVASCRIPTS -->
+<script>
+  // --- LOGIC SECTION 2: WORDCLOUD VIEWER ---
+  document.getElementById("wcSelector").addEventListener("change", function () {
+    const rsName = this.value;
+    const container = document.getElementById("wcResult");
+    const loading = document.getElementById("loadingWC");
+
+    container.style.display = "none";
+    loading.style.display = "block";
+
+    fetch("/api/get_wordcloud", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ hospital: rsName }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        loading.style.display = "none";
+        container.style.display = "flex";
+
+        // Set Gambar Positif
+        const imgPos = document.getElementById("imgPosSpecific");
+        if (data.wc_pos) {
+          imgPos.src = "data:image/png;base64," + data.wc_pos;
+          imgPos.style.display = "block";
+          document.getElementById("msgPosSpecific").classList.add("d-none");
+        } else {
+          imgPos.style.display = "none";
+          document.getElementById("msgPosSpecific").classList.remove("d-none");
+        }
+
+        // Set Gambar Negatif
+        const imgNeg = document.getElementById("imgNegSpecific");
+        if (data.wc_neg) {
+          imgNeg.src = "data:image/png;base64," + data.wc_neg;
+          imgNeg.style.display = "block";
+          document.getElementById("msgNegSpecific").classList.add("d-none");
+        } else {
+          imgNeg.style.display = "none";
+          document.getElementById("msgNegSpecific").classList.remove("d-none");
+        }
+      });
+  });
+
+  // --- LOGIC SECTION 3: DIAGNOSTIC CENTER ---
+  document
+    .getElementById("diagSelector")
+    .addEventListener("change", function () {
+      const rsName = this.value;
+      const container = document.getElementById("diagResult");
+      const loading = document.getElementById("loadingDiag");
+
+      container.style.display = "none";
+      loading.style.display = "block";
+
+      // Update Link Download
+      document.getElementById("btnDownloadSpecific").href =
+        "/api/download_report_specific/" + encodeURIComponent(rsName);
+
+      fetch("/api/get_hospital_analysis", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ hospital: rsName }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          loading.style.display = "none";
+          container.style.display = "block";
+
+          // Text
+          document.getElementById("txtAnalysisNeg").innerText =
+            data.analysis_neg;
+          document.getElementById("txtAnalysisPos").innerText =
+            data.analysis_pos;
+
+          // Helper Set Image
+          const setImg = (id, msgId, b64) => {
+            const img = document.getElementById(id);
+            if (b64) {
+              img.src = "data:image/png;base64," + b64;
+              img.style.display = "block";
+              if (msgId) document.getElementById(msgId).classList.add("d-none");
+            } else {
+              img.style.display = "none";
+              if (msgId)
+                document.getElementById(msgId).classList.remove("d-none");
+            }
+          };
+
+          setImg("imgNegPast", null, data.wc_neg_past);
+          setImg("imgPosPast", null, data.wc_pos_past);
+          setImg("imgNegLive", "msgNegLive", data.wc_neg_live);
+          setImg("imgPosLive", "msgPosLive", data.wc_pos_live);
+        });
+    });
+</script>
+{% endblock %}

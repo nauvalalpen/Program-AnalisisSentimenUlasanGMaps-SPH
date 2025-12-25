@@ -1,0 +1,92 @@
+{% extends "base.html" %} {% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <!-- Header -->
+    <div class="text-center mb-5">
+      <h1 class="display-6 fw-bold text-primary">
+        Bagaimana Pelayanan Rumah Sakit Anda?
+      </h1>
+      <p class="lead text-secondary">
+        Suara Anda membantu meningkatkan kualitas pelayanan kesehatan di kota
+        kita.
+      </p>
+    </div>
+
+    <!-- Alert Sukses (Muncul setelah submit) -->
+    {% if success %}
+    <div
+      class="alert alert-success alert-dismissible fade show shadow-sm"
+      role="alert"
+    >
+      <h4 class="alert-heading">
+        <i class="fas fa-check-circle me-2"></i>Laporan Diterima!
+      </h4>
+      <p>Terima kasih telah berkontribusi. Berdasarkan analisis AI kami:</p>
+      <hr />
+      <p class="mb-0">
+        Rumah Sakit: <strong>{{ result.rs }}</strong> <br />
+        Sentimen Terdeteksi:
+        <span
+          class="badge {% if result.sentimen == 'Positif' %}bg-success{% else %}bg-danger{% endif %} fs-6"
+        >
+          {{ result.sentimen }}
+        </span>
+      </p>
+      <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="alert"
+        aria-label="Close"
+      ></button>
+    </div>
+    {% endif %}
+
+    <!-- Form Input -->
+    <div class="card p-4">
+      <div class="card-body">
+        <form method="POST" action="{{ url_for('input_page') }}">
+          <div class="mb-4">
+            <label for="hospital" class="form-label fw-bold"
+              >Pilih Rumah Sakit</label
+            >
+            <select
+              class="form-select form-select-lg"
+              name="hospital"
+              id="hospital"
+              required
+            >
+              <option value="" selected disabled>
+                -- Pilih Rumah Sakit --
+              </option>
+              <!-- Loop data dari Python -->
+              {% for rs in hospitals %}
+              <option value="{{ rs }}">{{ rs }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-4">
+            <label for="review" class="form-label fw-bold"
+              >Ceritakan Pengalaman Anda</label
+            >
+            <textarea
+              class="form-control"
+              name="review"
+              id="review"
+              rows="5"
+              placeholder="Contoh: Dokternya ramah, tapi antrian apotek sangat lama..."
+              required
+            ></textarea>
+          </div>
+
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary btn-lg">
+              <i class="fas fa-paper-plane me-2"></i> Kirim Laporan
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

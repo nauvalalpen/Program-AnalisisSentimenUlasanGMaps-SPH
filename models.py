@@ -3,23 +3,18 @@ from datetime import datetime
 
 db = SQLAlchemy()
 
-# Tabel Riwayat Prediksi
-class PredictionHistory(db.Model):
+class ReviewLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    text = db.Column(db.String(500), nullable=False)
-    sentiment = db.Column(db.String(20), nullable=False)
-    confidence = db.Column(db.Float, nullable=False)
-    model_used = db.Column(db.String(50), nullable=False)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-    # Fitur feedback: User bisa menandai apakah prediksi ini benar/salah nanti
-    is_correct = db.Column(db.Boolean, default=None, nullable=True)
+    hospital_name = db.Column(db.String(100), nullable=False) # Nama RS pilihan user
+    review_text = db.Column(db.Text, nullable=False)          # Komentar user
+    sentiment = db.Column(db.String(20), nullable=False)      # Hasil Prediksi AI (Positif/Negatif)
+    confidence = db.Column(db.Float, nullable=False)          # Tingkat keyakinan AI (%)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow) # Waktu lapor
 
     def to_dict(self):
         return {
-            'id': self.id,
-            'text': self.text,
+            'rs': self.hospital_name,
+            'text': self.review_text,
             'sentiment': self.sentiment,
-            'confidence': round(self.confidence, 2),
-            'model_used': self.model_used,
-            'timestamp': self.timestamp.strftime('%Y-%m-%d %H:%M')
+            'date': self.timestamp.strftime('%Y-%m-%d %H:%M')
         }

@@ -1,172 +1,150 @@
 from fpdf import FPDF
 import tempfile
 import os
-from datetime import datetime
+import base64
 
 class PDFReport(FPDF):
     def header(self):
-        # Header Laporan Profesional
-        self.set_font('Arial', 'B', 14)
-        self.set_text_color(153, 27, 27) # Merah SPH
-        self.cell(0, 8, 'LAPORAN ANALISIS SENTIMEN PASIEN', 0, 1, 'L')
-        
-        self.set_font('Arial', '', 10)
-        self.set_text_color(80, 80, 80)
-        tanggal = datetime.now().strftime("%d %B %Y, %H:%M")
-        self.cell(0, 5, f'Rumah Sakit Semen Padang | Generated: {tanggal}', 0, 1, 'L')
-        
-        # Garis Merah Tebal
-        self.set_draw_color(153, 27, 27)
-        self.set_line_width(1)
+        self.set_font('Arial', 'B', 16)
+        self.cell(0, 10, 'Laporan Lengkap: Hospital Sentiment Analytics', 0, 1, 'C')
         self.line(10, 25, 200, 25)
         self.ln(15)
 
     def footer(self):
         self.set_y(-15)
         self.set_font('Arial', 'I', 8)
-        self.set_text_color(128)
-        self.cell(0, 10, f'Halaman {self.page_no()} | Powered by SPH AI System', 0, 0, 'C')
+        self.cell(0, 10, f'Halaman {self.page_no()}', 0, 0, 'C')
 
-def create_pdf_report(data):
-    """
-    Fungsi Layout PDF Profesional (Multi-Page).
-    Data input berupa Dictionary lengkap dari ml_engine.
-    """
+    def chapter_title(self, title):
+        self.set_font('Arial', 'B', 12)
+        self.set_fill_color(240, 240, 240) # Abu-abu muda
+        self.cell(0, 10, f"  {title}", 0, 1, 'L', 1)
+        self.ln(5)
+
+    def add_image_from_base64(self, b64_str, x, y, w, h):
+        """Helper untuk menaruh gambar di koordinat spesifik"""
+        if not b64_str: 
+            # Jika tidak ada gambar, tulis placeholder
+            self.set_xy(x, y + h/2)
+            self.set_font('Arial', 'I', 8)
+            self.cell(w, 10, "[Data Belum Cukup]", 0, 0, 'C')
+            return
+
+        try:
+            img_data = base64.b64decode(b64_str)
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as tmp_file:
+                tmp_file.write(img_data)
+                tmp_path = tmp_file.name
+            
+            self.image(tmp_path, x=x, y=y, w=w, h=h)
+            os.unlink(tmp_path)
+        except:
+            pass
+
+def clean_text(text):
+    if not isinstance(text, str): return str(text)
+    return text.encode('latin-1', 'ignore').decode('latin-1')
+
+def create_pdf_report(model_metrics, live_stats, learning_curve_b64, rs_specific_data=None):
     pdf = PDFReport()
-    
-    # --- HALAMAN 1: OVERVIEW & STATISTIK ---
+    pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
     
-    # Judul Besar
-    pdf.set_font("Arial", 'B', 16)
-    pdf.set_text_color(0, 0, 0)
-    pdf.cell(0, 10, "1. Ringkasan Eksekutif", 0, 1)
+    # --- HALAMAN 1: KESEHATAN MODEL (TETAP) ---
+    pdf.chapter_title("1. Evaluasi Model Machine Learning")
+    pdf.set_font('Arial', '', 11)
     
-    # Kotak Statistik
-    pdf.set_fill_color(240, 240, 240) # Abu muda
-    pdf.set_font("Arial", '', 11)
-    stats = data['stats']
-    metrics = data['metrics']
+    status = clean_text(f"Akurasi Model: {model_metrics.get('accuracy', 0)}% ({model_metrics.get('status', 'N/A')})")
+    advice = clean_text(f"Analisis: {model_metrics.get('advice', 'N/A')}")
     
-    text_summary = (
-        f"Analisis dilakukan terhadap {stats['total']} ulasan pasien dari Google Maps. "
-        f"Hasil menunjukkan dominasi sentimen {(stats['pos']/stats['total']*100):.1f}% POSITIF. "
-        f"Model AI '{data['best_model']}' dipilih sebagai algoritma terbaik dengan akurasi {metrics['accuracy']}%."
-    )
-    pdf.multi_cell(0, 7, text_summary, 0, 'J', False)
+    pdf.cell(0, 7, status, 0, 1)
+    pdf.multi_cell(0, 7, advice)
     pdf.ln(5)
-
-    try:
-        # Layout: Kiri Pie Chart, Kanan Bar Chart
-        y_pos = pdf.get_y()
-        
-        # 1. PIE CHART
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_pie:
-            tmp_pie.write(data['pie_bytes'])
-            tmp_pie.close()
-            pdf.image(tmp_pie.name, x=10, y=y_pos, w=90)
-            os.unlink(tmp_pie.name)
-
-        # 2. BAR CHART (Perbandingan Model)
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_bar:
-            tmp_bar.write(data['bar_bytes'])
-            tmp_bar.close()
-            pdf.image(tmp_bar.name, x=105, y=y_pos+10, w=95) # Sedikit turun agar center
-            os.unlink(tmp_bar.name)
-            
-        pdf.ln(100) # Spasi ke bawah melewati gambar
-        
-    except Exception as e:
-        pdf.cell(0, 10, f"Error Grafik Hal 1: {str(e)}", 1, 1)
-
-    # --- HALAMAN 2: DEEP DIVE (WORDCLOUD) ---
-    pdf.add_page()
-    pdf.set_font("Arial", 'B', 16)
-    pdf.cell(0, 10, "2. Analisis Topik (Wordcloud)", 0, 1)
-    pdf.set_font("Arial", '', 11)
-    pdf.multi_cell(0, 7, "Visualisasi di bawah ini menampilkan kata-kata yang paling sering muncul dalam ulasan, membantu manajemen mengidentifikasi kekuatan (Positif) dan keluhan (Negatif).")
-    pdf.ln(5)
-
-    try:
-        # Label Positif
-        pdf.set_font("Arial", 'B', 12)
-        pdf.set_text_color(34, 197, 94) # Hijau
-        pdf.cell(0, 10, "TOPIC: ULASAN POSITIF", 0, 1)
-        
-        # Gambar WC Positif
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_wc_pos:
-            tmp_wc_pos.write(data['wc_pos_bytes'])
-            tmp_wc_pos.close()
-            pdf.image(tmp_wc_pos.name, x=15, y=pdf.get_y(), w=180)
-            os.unlink(tmp_wc_pos.name)
-        pdf.ln(95)
-
-        # Label Negatif
-        pdf.set_font("Arial", 'B', 12)
-        pdf.set_text_color(239, 68, 68) # Merah
-        pdf.cell(0, 10, "TOPIC: ULASAN NEGATIF", 0, 1)
-        
-        # Gambar WC Negatif
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_wc_neg:
-            tmp_wc_neg.write(data['wc_neg_bytes'])
-            tmp_wc_neg.close()
-            pdf.image(tmp_wc_neg.name, x=15, y=pdf.get_y(), w=180)
-            os.unlink(tmp_wc_neg.name)
-            
-    except Exception as e:
-        pdf.set_text_color(0)
-        pdf.cell(0, 10, f"Error Grafik Hal 2: {str(e)}", 1, 1)
-
-    # --- HALAMAN 3: EVALUASI TEKNIS & REKOMENDASI ---
-    pdf.add_page()
-    pdf.set_font("Arial", 'B', 16)
-    pdf.set_text_color(0, 0, 0)
-    pdf.cell(0, 10, "3. Detail Teknis & Rekomendasi", 0, 1)
     
-    # Confusion Matrix di Kiri
-    y_final = pdf.get_y()
+    if learning_curve_b64:
+        # Tampilkan grafik di tengah
+        pdf.add_image_from_base64(learning_curve_b64, x=55, y=pdf.get_y(), w=100, h=70)
+        pdf.ln(75) # Pindah baris setelah gambar
+
+    # --- HALAMAN 2: ANALISIS SPESIFIK RS ---
+    if rs_specific_data:
+        pdf.add_page()
+        rs_name = clean_text(rs_specific_data.get('name', 'Rumah Sakit'))
+        pdf.chapter_title(f"2. Analisis Spesifik: {rs_name}")
+        
+        # --- JUDUL KOLOM ---
+        pdf.set_font('Arial', 'B', 10)
+        y_start = pdf.get_y()
+        
+        # Header Kolom Kiri
+        pdf.set_fill_color(100, 100, 100) # Abu-abu tua
+        pdf.set_text_color(255, 255, 255)
+        pdf.set_xy(10, y_start)
+        pdf.cell(90, 8, "MASA LALU (Dataset)", 0, 0, 'C', 1)
+        
+        # Header Kolom Kanan
+        pdf.set_fill_color(0, 102, 204) # Biru
+        pdf.set_xy(110, y_start)
+        pdf.cell(90, 8, "MASA SEKARANG (Live)", 0, 1, 'C', 1)
+        
+        pdf.set_text_color(0, 0, 0) # Reset hitam
+        pdf.ln(2)
+
+        # --- BARIS 1: KELUHAN (NEGATIF) ---
+        pdf.set_font('Arial', 'B', 9)
+        pdf.set_text_color(150, 0, 0) # Merah
+        pdf.cell(0, 6, "Komparasi Keluhan (Negatif)", 0, 1, 'C')
+        
+        y_img_1 = pdf.get_y()
+        # Gambar Kiri (Negatif Past)
+        pdf.add_image_from_base64(rs_specific_data.get('wc_neg_past'), x=10, y=y_img_1, w=90, h=45)
+        # Gambar Kanan (Negatif Live)
+        pdf.add_image_from_base64(rs_specific_data.get('wc_neg_live'), x=110, y=y_img_1, w=90, h=45)
+        
+        pdf.set_y(y_img_1 + 50) # Pindah cursor ke bawah gambar
+
+        # --- BARIS 2: KEKUATAN (POSITIF) ---
+        pdf.set_font('Arial', 'B', 9)
+        pdf.set_text_color(0, 100, 0) # Hijau
+        pdf.cell(0, 6, "Komparasi Kekuatan (Positif)", 0, 1, 'C')
+
+        y_img_2 = pdf.get_y()
+        # Gambar Kiri (Positif Past)
+        pdf.add_image_from_base64(rs_specific_data.get('wc_pos_past'), x=10, y=y_img_2, w=90, h=45)
+        # Gambar Kanan (Positif Live)
+        pdf.add_image_from_base64(rs_specific_data.get('wc_pos_live'), x=110, y=y_img_2, w=90, h=45)
+
+        pdf.set_y(y_img_2 + 55) # Pindah cursor ke bawah gambar
+
+        # --- BAGIAN 3: KESIMPULAN / EVALUASI TEKS ---
+        pdf.set_font('Arial', 'B', 12)
+        pdf.cell(0, 10, "Kesimpulan & Evaluasi AI", 0, 1, 'L')
+        pdf.line(10, pdf.get_y(), 200, pdf.get_y())
+        pdf.ln(2)
+
+        # Analisis Negatif
+        pdf.set_font('Arial', 'B', 10)
+        pdf.set_text_color(150, 0, 0)
+        pdf.cell(0, 6, "Analisis Keluhan:", 0, 1)
+        pdf.set_font('Arial', '', 10)
+        pdf.set_text_color(0, 0, 0)
+        # Tampilkan teks analisis dari AI
+        neg_text = clean_text(rs_specific_data.get('analysis_neg', '-'))
+        pdf.multi_cell(0, 5, neg_text)
+        pdf.ln(3)
+
+        # Analisis Positif
+        pdf.set_font('Arial', 'B', 10)
+        pdf.set_text_color(0, 100, 0)
+        pdf.cell(0, 6, "Analisis Kekuatan:", 0, 1)
+        pdf.set_font('Arial', '', 10)
+        pdf.set_text_color(0, 0, 0)
+        # Tampilkan teks analisis dari AI
+        pos_text = clean_text(rs_specific_data.get('analysis_pos', '-'))
+        pdf.multi_cell(0, 5, pos_text)
+
+    # Output bytes
     try:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_cm:
-            tmp_cm.write(data['cm_bytes'])
-            tmp_cm.close()
-            pdf.image(tmp_cm.name, x=55, y=y_final, w=100) # Center
-            os.unlink(tmp_cm.name)
-        pdf.ln(90)
+        return pdf.output(dest='S').encode('latin-1', 'ignore')
     except:
-        pass
-
-    # Kotak Rekomendasi
-    pdf.set_fill_color(255, 245, 245) # Merah muda sangat pudar
-    pdf.set_draw_color(153, 27, 27)
-    pdf.rect(10, pdf.get_y(), 190, 60, 'DF')
-    
-    pdf.set_xy(15, pdf.get_y()+5)
-    pdf.set_font("Arial", 'B', 14)
-    pdf.set_text_color(153, 27, 27)
-    pdf.cell(0, 10, "REKOMENDASI STRATEGIS", 0, 1)
-    
-    pdf.set_font("Arial", '', 11)
-    pdf.set_text_color(0, 0, 0)
-    
-    # Logika Rekomendasi
-    neg_pct = (stats['neg'] / stats['total']) * 100
-    
-    points = []
-    if neg_pct > 30:
-        points.append("1. [URGENT] Lakukan audit pada layanan front-office & antrian.")
-        points.append("2. Perhatikan kata kunci dominan di Wordcloud Negatif.")
-        points.append("3. Adakan pelatihan 'Service Excellence' untuk staf.")
-    elif neg_pct > 15:
-        points.append("1. Tingkatkan kecepatan respon terhadap keluhan pasien.")
-        points.append("2. Monitor waktu tunggu pasien di jam sibuk.")
-        points.append("3. Pertahankan keramahan dokter yang sudah dinilai baik.")
-    else:
-        points.append("1. [EXCELLENT] Pertahankan standar layanan saat ini.")
-        points.append("2. Gunakan testimoni positif untuk materi promosi di media sosial.")
-        points.append("3. Berikan reward kepada tim medis atas kinerja yang baik.")
-        
-    for p in points:
-        pdf.set_x(15)
-        pdf.multi_cell(180, 7, p)
-        
-    return pdf.output(dest='S')
+        return pdf.output(dest='S').encode('latin-1', 'replace')

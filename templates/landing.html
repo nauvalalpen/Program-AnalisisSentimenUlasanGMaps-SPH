@@ -1,0 +1,111 @@
+{% extends "base.html" %} {% block content %}
+<!-- HERO SECTION -->
+<div
+  class="p-5 mb-5 bg-white rounded-3 shadow-sm border text-center"
+  style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)"
+>
+  <div class="container-fluid py-5">
+    <h1 class="display-4 fw-bold text-primary mb-3">
+      Suara Pasien, Kualitas Masa Depan
+    </h1>
+    <p class="col-md-8 fs-4 mx-auto text-muted mb-5">
+      Platform pemantauan kualitas pelayanan rumah sakit berbasis
+      <span class="fw-bold text-dark">Artificial Intelligence</span>.
+      Transparan, Real-time, dan Objektif.
+    </p>
+
+    <!-- Action Buttons -->
+    <div class="d-flex justify-content-center gap-3 flex-wrap">
+      <a
+        href="{{ url_for('input_page') }}"
+        class="btn btn-primary btn-lg px-4 gap-3 shadow-sm"
+      >
+        <i class="fas fa-bullhorn me-2"></i>Mulai Lapor
+      </a>
+      <a
+        href="{{ url_for('dashboard_page') }}"
+        class="btn btn-outline-dark btn-lg px-4 shadow-sm"
+      >
+        <i class="fas fa-chart-line me-2"></i>Lihat Statistik
+      </a>
+      <a
+        href="{{ url_for('developer_page') }}"
+        class="btn btn-dark btn-lg px-4 shadow-sm"
+      >
+        <i class="fas fa-code me-2"></i>Dev Tools
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES SECTION -->
+<div class="row g-4 py-3 row-cols-1 row-cols-lg-3">
+  <!-- Fitur 1 -->
+  <div class="col">
+    <div class="card h-100 border-0 shadow-sm hover-effect text-center p-4">
+      <div class="text-primary mb-3">
+        <i class="fas fa-robot fa-3x"></i>
+      </div>
+      <h3 class="fw-bold">Analisis AI Cerdas</h3>
+      <p class="text-muted">
+        Menggunakan algoritma <i>Machine Learning (Naive Bayes)</i> untuk
+        mendeteksi sentimen ulasan secara otomatis dengan akurasi tinggi.
+      </p>
+    </div>
+  </div>
+
+  <!-- Fitur 2 -->
+  <div class="col">
+    <div class="card h-100 border-0 shadow-sm hover-effect text-center p-4">
+      <div class="text-success mb-3">
+        <i class="fas fa-chart-pie fa-3x"></i>
+      </div>
+      <h3 class="fw-bold">Monitoring Real-Time</h3>
+      <p class="text-muted">
+        Pantau reputasi rumah sakit secara langsung melalui Dashboard
+        interaktif. Data diperbarui setiap kali ada laporan masuk.
+      </p>
+    </div>
+  </div>
+
+  <!-- Fitur 3 -->
+  <div class="col">
+    <div class="card h-100 border-0 shadow-sm hover-effect text-center p-4">
+      <div class="text-warning mb-3">
+        <i class="fas fa-search-plus fa-3x"></i>
+      </div>
+      <h3 class="fw-bold">Diagnostik Mendalam</h3>
+      <p class="text-muted">
+        Membandingkan data historis dengan tren saat ini untuk mengetahui apakah
+        kualitas pelayanan RS meningkat atau menurun.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- DATA TRANSITION SECTION -->
+<div class="row align-items-center my-5 py-5">
+  <div class="col-lg-6">
+    <h2 class="fw-bold lh-1 mb-3">Transparansi Data untuk Publik</h2>
+    <p class="lead text-muted">
+      Kami menyimpan riwayat laporan secara transparan. Anda dapat melihat jejak
+      digital pelayanan rumah sakit di kota Anda kapan saja.
+    </p>
+    <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+      <a
+        href="{{ url_for('history_page') }}"
+        class="btn btn-outline-secondary btn-lg px-4 me-md-2"
+        >Buka Riwayat Data</a
+      >
+    </div>
+  </div>
+  <div class="col-lg-6 text-center">
+    <!-- Ilustrasi Sederhana menggunakan Icon -->
+    <i
+      class="fas fa-file-medical-alt text-primary opacity-25"
+      style="font-size: 15rem"
+    ></i>
+  </div>
+</div>
+
+{% endblock %}
