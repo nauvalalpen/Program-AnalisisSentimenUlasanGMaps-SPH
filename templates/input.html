@@ -1,79 +1,89 @@
 {% extends "base.html" %} {% block content %}
 
-<section class="py-12">
-  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+<section class="py-12 lg:py-20">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
     <!-- Header -->
     <div class="text-center mb-12" data-aos="fade-up">
       <div
-        class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mb-6 shadow-lg"
+        class="inline-flex items-center justify-center w-16 h-16 bg-brand-50 rounded-2xl mb-6 ring-1 ring-brand-100"
       >
-        <i class="fas fa-bullhorn text-3xl text-white"></i>
+        <i class="fas fa-edit text-2xl text-brand-600"></i>
       </div>
-      <h1 class="text-4xl md:text-5xl font-black text-gray-800 mb-4">
-        Bagaimana Pelayanan <span class="gradient-text">Rumah Sakit</span> Anda?
+      <h1
+        class="text-3xl md:text-4xl font-black text-slate-900 mb-4 tracking-tight"
+      >
+        Bagaimana Layanan <span class="text-brand-600">Rumah Sakit</span> Anda?
       </h1>
-      <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-        Suara Anda membantu meningkatkan kualitas pelayanan kesehatan di kota
-        kita.
+      <p class="text-lg text-slate-600 max-w-xl mx-auto leading-relaxed">
+        Partisipasi Anda adalah kunci perbaikan layanan kesehatan publik.
+        Ceritakan pengalaman Anda secara objektif.
       </p>
     </div>
 
-    <!-- Success Alert -->
+    <!-- Success Alert (Clean Style) -->
     {% if success %}
-    <div class="mb-8" data-aos="fade-down">
+    <div class="mb-10" data-aos="fade-down">
       <div
-        class="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-500 rounded-2xl p-6 shadow-xl relative overflow-hidden"
+        class="bg-white border border-emerald-100 rounded-xl p-6 shadow-lg shadow-emerald-500/5 relative overflow-hidden"
       >
+        <!-- Decorative bg -->
         <div
-          class="absolute top-0 right-0 w-32 h-32 bg-green-500 opacity-10 rounded-full -mr-16 -mt-16"
+          class="absolute top-0 right-0 w-64 h-64 bg-emerald-50 rounded-full opacity-50 blur-3xl -mr-32 -mt-32"
         ></div>
-        <div class="relative">
-          <div class="flex items-start space-x-4">
-            <div class="flex-shrink-0">
-              <div
-                class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center"
-              >
-                <i class="fas fa-check text-white text-xl"></i>
-              </div>
+
+        <div class="relative flex items-start space-x-5">
+          <div class="flex-shrink-0">
+            <div
+              class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center ring-4 ring-emerald-50"
+            >
+              <i class="fas fa-check text-emerald-600"></i>
             </div>
-            <div class="flex-1">
-              <h3 class="text-2xl font-bold text-green-800 mb-2">
-                <i class="fas fa-check-circle mr-2"></i>Laporan Diterima!
-              </h3>
-              <p class="text-green-700 mb-4">
-                Terima kasih telah berkontribusi. Berdasarkan analisis AI kami:
-              </p>
-              <div class="bg-white rounded-xl p-4 shadow-sm">
-                <div class="flex items-center justify-between flex-wrap gap-4">
-                  <div>
-                    <p class="text-sm text-gray-600 mb-1">Rumah Sakit:</p>
-                    <p class="font-bold text-gray-800 text-lg">
-                      {{ result.rs }}
-                    </p>
-                  </div>
-                  <div>
-                    <p class="text-sm text-gray-600 mb-1">
-                      Sentimen Terdeteksi:
-                    </p>
-                    <span
-                      class="inline-flex items-center px-4 py-2 rounded-lg text-white font-bold text-lg shadow-md {% if result.sentimen == 'Positif' %} bg-gradient-to-r from-green-500 to-emerald-600 {% else %} bg-gradient-to-r from-red-500 to-pink-600 {% endif %}"
-                    >
-                      <i
-                        class="fas {% if result.sentimen == 'Positif' %}fa-smile{% else %}fa-frown{% endif %} mr-2"
-                      ></i>
-                      {{ result.sentimen }}
-                    </span>
-                  </div>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-lg font-bold text-slate-900 mb-1">
+              Laporan Berhasil Dianalisis
+            </h3>
+            <p class="text-slate-500 text-sm mb-4">
+              Sistem AI kami telah memproses ulasan Anda. Berikut hasilnya:
+            </p>
+
+            <div class="bg-slate-50 rounded-lg border border-slate-200 p-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p
+                    class="text-xs text-slate-500 uppercase tracking-wide font-semibold mb-1"
+                  >
+                    Rumah Sakit
+                  </p>
+                  <p class="font-bold text-slate-800 text-base">
+                    <i class="fas fa-hospital text-brand-500 mr-2"></i>{{
+                    result.rs }}
+                  </p>
+                </div>
+                <div>
+                  <p
+                    class="text-xs text-slate-500 uppercase tracking-wide font-semibold mb-1"
+                  >
+                    Hasil Sentimen
+                  </p>
+                  <span
+                    class="inline-flex items-center px-3 py-1 rounded-md text-sm font-bold border {% if result.sentimen == 'Positif' %} bg-emerald-100 text-emerald-700 border-emerald-200 {% else %} bg-rose-100 text-rose-700 border-rose-200 {% endif %}"
+                  >
+                    <i
+                      class="fas {% if result.sentimen == 'Positif' %}fa-smile{% else %}fa-frown{% endif %} mr-2"
+                    ></i>
+                    {{ result.sentimen }}
+                  </span>
                 </div>
               </div>
             </div>
-            <button
-              onclick="this.closest('.mb-8').remove()"
-              class="flex-shrink-0 text-green-600 hover:text-green-800 transition-colors"
-            >
-              <i class="fas fa-times text-xl"></i>
-            </button>
           </div>
+          <button
+            onclick="this.closest('.mb-10').remove()"
+            class="text-slate-400 hover:text-slate-600 transition-colors"
+          >
+            <i class="fas fa-times"></i>
+          </button>
         </div>
       </div>
     </div>
@@ -81,11 +91,16 @@
 
     <!-- Form Card -->
     <div
-      class="bg-white rounded-3xl shadow-2xl overflow-hidden"
+      class="bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-200 overflow-hidden"
       data-aos="fade-up"
       data-aos-delay="100"
     >
-      <div class="p-8 md:p-12">
+      <!-- Progress Bar Decoration -->
+      <div class="h-1.5 w-full bg-slate-100">
+        <div class="h-full bg-brand-600 w-1/3"></div>
+      </div>
+
+      <div class="p-8 md:p-10">
         <form
           method="POST"
           action="{{ url_for('input_page') }}"
@@ -95,158 +110,141 @@
           <div class="mb-8">
             <label
               for="hospital"
-              class="block text-lg font-bold text-gray-800 mb-3"
+              class="block text-sm font-bold text-slate-900 mb-2"
             >
-              <i class="fas fa-hospital-alt text-blue-600 mr-2"></i>Pilih Rumah
-              Sakit
+              Pilih Fasilitas Kesehatan
             </label>
-            <div class="relative">
+            <div class="relative group">
+              <div
+                class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"
+              >
+                <i
+                  class="fas fa-hospital-alt text-slate-400 group-focus-within:text-brand-600 transition-colors"
+                ></i>
+              </div>
               <select
-                class="w-full px-6 py-4 text-lg border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all appearance-none bg-white cursor-pointer hover:border-blue-400"
+                class="block w-full pl-11 pr-10 py-3.5 text-base border-slate-300 rounded-lg bg-slate-50 text-slate-900 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 focus:bg-white transition-all cursor-pointer hover:border-brand-300"
                 name="hospital"
                 id="hospital"
                 required
               >
                 <option value="" selected disabled>
-                  -- Pilih Rumah Sakit --
+                  -- Pilih Rumah Sakit Tujuan --
                 </option>
                 {% for rs in hospitals %}
                 <option value="{{ rs }}">{{ rs }}</option>
                 {% endfor %}
               </select>
               <div
-                class="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none"
+                class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none"
               >
-                <i class="fas fa-chevron-down text-gray-400"></i>
+                <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
               </div>
             </div>
-            <p class="mt-2 text-sm text-gray-500">
-              <i class="fas fa-info-circle mr-1"></i>Pilih rumah sakit yang
-              ingin Anda review
-            </p>
           </div>
 
           <!-- Review Text Area -->
           <div class="mb-8">
-            <label
-              for="review"
-              class="block text-lg font-bold text-gray-800 mb-3"
-            >
-              <i class="fas fa-comment-dots text-purple-600 mr-2"></i>Ceritakan
-              Pengalaman Anda
-            </label>
-            <textarea
-              class="w-full px-6 py-4 text-lg border-2 border-gray-300 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-100 transition-all resize-none"
-              name="review"
-              id="review"
-              rows="6"
-              placeholder="Contoh: Dokternya ramah dan profesional, fasilitas bersih, tapi waktu tunggu cukup lama..."
-              required
-            ></textarea>
-            <div class="flex items-center justify-between mt-2">
-              <p class="text-sm text-gray-500">
-                <i class="fas fa-shield-alt mr-1"></i>Review Anda akan
-                dianalisis secara anonim
+            <div class="flex justify-between items-center mb-2">
+              <label
+                for="review"
+                class="block text-sm font-bold text-slate-900"
+              >
+                Ulasan & Pengalaman
+              </label>
+              <span
+                class="text-xs text-slate-400 bg-slate-100 px-2 py-1 rounded"
+                >Wajib diisi</span
+              >
+            </div>
+
+            <div class="relative group">
+              <textarea
+                class="block w-full p-4 text-base border-slate-300 rounded-lg bg-slate-50 text-slate-900 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 focus:bg-white transition-all resize-none placeholder-slate-400"
+                name="review"
+                id="review"
+                rows="6"
+                placeholder="Ceritakan pengalaman Anda terkait pelayanan dokter, kebersihan fasilitas, waktu tunggu, atau administrasi..."
+                required
+              ></textarea>
+            </div>
+
+            <div class="flex items-center justify-between mt-3">
+              <div class="flex items-center text-xs text-slate-500">
+                <i class="fas fa-shield-alt mr-1.5 text-brand-500"></i>
+                <span>Data dienkripsi & anonim</span>
+              </div>
+              <p class="text-xs font-mono text-slate-400" id="charCount">
+                0 Karakter
               </p>
-              <p class="text-sm text-gray-400" id="charCount">0 karakter</p>
             </div>
           </div>
 
-          <!-- Submit Button -->
-          <div class="flex flex-col sm:flex-row gap-4">
+          <!-- Action Buttons -->
+          <div
+            class="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-100"
+          >
             <button
               type="submit"
-              class="flex-1 group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all overflow-hidden"
+              class="flex-1 inline-flex justify-center items-center px-6 py-3.5 border border-transparent text-base font-bold rounded-lg text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 shadow-lg shadow-brand-500/30 hover:shadow-brand-500/50 transform hover:-translate-y-0.5 transition-all duration-200"
             >
-              <span
-                class="relative z-10 flex items-center justify-center space-x-3"
-              >
-                <i class="fas fa-paper-plane"></i>
-                <span>Kirim Laporan</span>
-                <i
-                  class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"
-                ></i>
-              </span>
-              <div
-                class="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity"
-              ></div>
+              <i class="fas fa-paper-plane mr-2"></i>
+              Kirim Laporan
             </button>
 
             <button
               type="reset"
-              class="px-8 py-4 bg-gray-100 text-gray-700 rounded-xl font-bold text-lg hover:bg-gray-200 transition-all"
+              class="inline-flex justify-center items-center px-6 py-3.5 border border-slate-200 text-base font-semibold rounded-lg text-slate-600 bg-white hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-200 transition-all duration-200"
             >
-              <i class="fas fa-redo mr-2"></i>Reset
+              <i class="fas fa-redo mr-2 text-slate-400"></i>
+              Reset
             </button>
           </div>
         </form>
       </div>
 
-      <!-- Info Section -->
-      <div
-        class="bg-gradient-to-r from-blue-50 to-purple-50 px-8 py-6 border-t border-gray-200"
-      >
-        <div class="flex items-start space-x-4">
-          <i class="fas fa-lightbulb text-yellow-500 text-2xl mt-1"></i>
-          <div>
-            <h4 class="font-bold text-gray-800 mb-2">
-              Tips untuk Review yang Baik:
-            </h4>
-            <ul class="text-sm text-gray-600 space-y-1">
-              <li>
-                <i class="fas fa-check text-green-500 mr-2"></i>Jelaskan
-                pengalaman Anda secara detail dan jujur
-              </li>
-              <li>
-                <i class="fas fa-check text-green-500 mr-2"></i>Sebutkan aspek
-                positif dan negatif jika ada
-              </li>
-              <li>
-                <i class="fas fa-check text-green-500 mr-2"></i>Hindari
-                kata-kata kasar atau menyinggung
-              </li>
-            </ul>
+      <!-- Guidelines Footer -->
+      <div class="bg-slate-50 px-8 py-6 border-t border-slate-200">
+        <h4 class="text-sm font-bold text-slate-900 mb-3 flex items-center">
+          <i class="fas fa-info-circle text-brand-500 mr-2"></i>Panduan
+          Penulisan:
+        </h4>
+        <div
+          class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-600"
+        >
+          <div class="flex items-start">
+            <i class="fas fa-check text-emerald-500 mt-0.5 mr-2"></i>
+            <span>Gunakan bahasa yang sopan dan jelas.</span>
+          </div>
+          <div class="flex items-start">
+            <i class="fas fa-check text-emerald-500 mt-0.5 mr-2"></i>
+            <span>Fokus pada fakta kejadian di lapangan.</span>
+          </div>
+          <div class="flex items-start">
+            <i class="fas fa-check text-emerald-500 mt-0.5 mr-2"></i>
+            <span>Hindari menyebut nama lengkap staf medis.</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Features Grid -->
+    <!-- Security Badges -->
     <div
-      class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12"
+      class="flex justify-center items-center space-x-8 mt-10 opacity-70 grayscale hover:grayscale-0 transition-all duration-500"
       data-aos="fade-up"
       data-aos-delay="200"
     >
-      <div class="text-center p-6 bg-white rounded-2xl shadow-lg">
-        <div
-          class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4"
-        >
-          <i class="fas fa-lock text-blue-600 text-xl"></i>
-        </div>
-        <h3 class="font-bold text-gray-800 mb-2">100% Anonim</h3>
-        <p class="text-sm text-gray-600">
-          Identitas Anda terlindungi sepenuhnya
-        </p>
+      <div class="flex items-center space-x-2 text-slate-400">
+        <i class="fas fa-lock text-xl"></i>
+        <span class="text-xs font-semibold">SSL Secured</span>
       </div>
-
-      <div class="text-center p-6 bg-white rounded-2xl shadow-lg">
-        <div
-          class="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4"
-        >
-          <i class="fas fa-robot text-purple-600 text-xl"></i>
-        </div>
-        <h3 class="font-bold text-gray-800 mb-2">Analisis AI</h3>
-        <p class="text-sm text-gray-600">Sentimen dideteksi secara otomatis</p>
+      <div class="flex items-center space-x-2 text-slate-400">
+        <i class="fas fa-user-secret text-xl"></i>
+        <span class="text-xs font-semibold">100% Private</span>
       </div>
-
-      <div class="text-center p-6 bg-white rounded-2xl shadow-lg">
-        <div
-          class="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4"
-        >
-          <i class="fas fa-chart-line text-green-600 text-xl"></i>
-        </div>
-        <h3 class="font-bold text-gray-800 mb-2">Real-time Update</h3>
-        <p class="text-sm text-gray-600">Data langsung masuk dashboard</p>
+      <div class="flex items-center space-x-2 text-slate-400">
+        <i class="fas fa-server text-xl"></i>
+        <span class="text-xs font-semibold">Encrypted DB</span>
       </div>
     </div>
   </div>
@@ -259,24 +257,33 @@
 
   reviewTextarea.addEventListener("input", function () {
     const count = this.value.length;
-    charCount.textContent = count + " karakter";
+    charCount.textContent = count + " Karakter";
 
     if (count > 500) {
-      charCount.classList.add("text-orange-500", "font-bold");
+      charCount.classList.remove("text-slate-400");
+      charCount.classList.add("text-amber-500", "font-bold");
     } else {
-      charCount.classList.remove("text-orange-500", "font-bold");
+      charCount.classList.add("text-slate-400");
+      charCount.classList.remove("text-amber-500", "font-bold");
     }
   });
 
-  // Form validation feedback
+  // Simple Form Validation Animation
   const form = document.getElementById("reportForm");
   form.addEventListener("submit", function (e) {
     const hospital = document.getElementById("hospital");
     const review = document.getElementById("review");
+    const btn = this.querySelector('button[type="submit"]');
 
     if (!hospital.value || !review.value) {
       e.preventDefault();
-      alert("Mohon lengkapi semua field yang diperlukan!");
+      // Shake animation logic handled by browser usually, but we can alert custom
+      alert("Mohon lengkapi semua data laporan.");
+    } else {
+      // Loading state
+      btn.innerHTML =
+        '<i class="fas fa-circle-notch fa-spin mr-2"></i> Menganalisis...';
+      btn.classList.add("opacity-75", "cursor-not-allowed");
     }
   });
 </script>

@@ -1,528 +1,613 @@
-{% extends "base.html" %}
+{% extends "base.html" %} {% block content %}
 
-{% block content %}
+<section class="py-8 lg:py-12 bg-slate-50 min-h-screen">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Header Section -->
+    <div
+      class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-10 gap-6"
+      data-aos="fade-up"
+    >
+      <div>
+        <h1
+          class="text-3xl font-black text-slate-900 tracking-tight flex items-center"
+        >
+          <i class="fas fa-laptop-medical text-brand-600 mr-3"></i>
+          Developer Console
+        </h1>
+        <p class="text-slate-500 mt-1 max-w-2xl">
+          Pusat kendali evaluasi model AI, visualisasi teks, dan diagnostik
+          komparatif.
+        </p>
+      </div>
 
-<section class="py-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        <!-- Header Section -->
-        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-10 gap-6" data-aos="fade-up">
-            <div>
-                <div class="flex items-center space-x-4 mb-3">
-                    <div class="w-16 h-16 bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl flex items-center justify-center shadow-lg">
-                        <i class="fas fa-code text-3xl text-white"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-4xl font-black text-gray-800">Developer Console</h1>
-                        <p class="text-gray-600 text-lg">Pusat kendali evaluasi model, visualisasi teks, dan diagnostik</p>
-                    </div>
-                </div>
-            </div>
-            
-            <a href="{{ url_for('download_report') }}" class="group relative px-8 py-4 bg-gradient-to-r from-gray-800 to-gray-900 text-white rounded-xl font-bold shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all overflow-hidden">
-                <span class="relative z-10 flex items-center space-x-3">
-                    <i class="fas fa-file-pdf"></i>
-                    <span>Download Laporan Lengkap</span>
-                    <i class="fas fa-download group-hover:translate-y-0.5 transition-transform"></i>
-                </span>
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            </a>
-        </div>
-
-        <!-- Model Health Check -->
-        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden mb-8" data-aos="fade-up" data-aos-delay="100">
-            <div class="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 px-8 py-6 relative overflow-hidden">
-                <div class="absolute inset-0 opacity-10">
-                    <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width=&quot;60&quot; height=&quot;60&quot; viewBox=&quot;0 0 60 60&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Cg fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;%3E%3Cg fill=&quot;%23ffffff&quot; fill-opacity=&quot;0.4&quot;%3E%3Cpath d=&quot;M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z&quot;/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
-                </div>
-                <div class="relative z-10">
-                    <h2 class="text-2xl font-black text-white flex items-center">
-                        <i class="fas fa-heartbeat mr-3 text-red-500"></i>
-                        Model Health Check
-                    </h2>
-                </div>
-            </div>
-            
-            <div class="p-8">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <!-- Left: Metrics -->
-                    <div>
-                        <div class="flex items-center space-x-6 mb-6">
-                            <div class="text-center">
-                                <div class="relative inline-block">
-                                    <div class="absolute inset-0 bg-blue-500 opacity-20 blur-2xl"></div>
-                                    <h1 class="text-7xl font-black text-blue-600 relative z-10">{{ metrics.accuracy }}</h1>
-                                </div>
-                                <p class="text-sm font-bold text-gray-500 uppercase mt-2">Test Accuracy</p>
-                            </div>
-                            
-                            <div class="text-center">
-                                <div class="relative inline-block">
-                                    <div class="absolute inset-0 bg-purple-500 opacity-20 blur-2xl"></div>
-                                    <h2 class="text-5xl font-black text-purple-600 relative z-10">{{ metrics.train_accuracy }}</h2>
-                                </div>
-                                <p class="text-sm font-bold text-gray-500 uppercase mt-2">Train Accuracy</p>
-                            </div>
-                        </div>
-                        
-                        <div class="{% if metrics.status == 'Good Fit (Ideal)' %}bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-500{% else %}bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-500{% endif %} rounded-2xl p-6 relative overflow-hidden">
-                            <div class="absolute top-0 right-0 w-32 h-32 {% if metrics.status == 'Good Fit (Ideal)' %}bg-green-500{% else %}bg-yellow-500{% endif %} opacity-10 rounded-full -mr-16 -mt-16"></div>
-                            <div class="relative z-10">
-                                <div class="flex items-center space-x-3 mb-3">
-                                    <div class="w-10 h-10 {% if metrics.status == 'Good Fit (Ideal)' %}bg-green-500{% else %}bg-yellow-500{% endif %} rounded-xl flex items-center justify-center">
-                                        <i class="fas {% if metrics.status == 'Good Fit (Ideal)' %}fa-check-circle{% else %}fa-exclamation-triangle{% endif %} text-white"></i>
-                                    </div>
-                                    <h3 class="text-xl font-bold {% if metrics.status == 'Good Fit (Ideal)' %}text-green-800{% else %}text-yellow-800{% endif %}">
-                                        Status: {{ metrics.status }}
-                                    </h3>
-                                </div>
-                                <p class="{% if metrics.status == 'Good Fit (Ideal)' %}text-green-700{% else %}text-yellow-700{% endif %} leading-relaxed">
-                                    {{ metrics.advice }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Right: Learning Curve -->
-                    <div class="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 border-2 border-gray-200">
-                        <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
-                            <i class="fas fa-chart-area mr-2 text-blue-600"></i>
-                            Grafik Learning Curve
-                        </h3>
-                        <p class="text-sm text-gray-600 mb-4">Visualisasi Overfitting Detection</p>
-                        
-                        {% if learning_curve %}
-                        <div class="bg-white rounded-xl p-4 shadow-lg">
-                            <img src="data:image/png;base64,{{ learning_curve }}" class="w-full rounded-lg"/>
-                        </div>
-                        {% else %}
-                        <div class="bg-white rounded-xl p-12 text-center shadow-inner">
-                            <i class="fas fa-chart-line text-6xl text-gray-300 mb-4"></i>
-                            <p class="text-gray-500 font-semibold">Grafik tersedia setelah training ulang</p>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Section 1: Global Landscape -->
-        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden mb-8" data-aos="fade-up" data-aos-delay="200">
-            <div class="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500 px-8 py-6">
-                <h2 class="text-2xl font-black text-white flex items-center">
-                    <i class="fas fa-globe mr-3"></i>
-                    1. Global Landscape & Model Metrics
-                </h2>
-            </div>
-            
-            <div class="p-8">
-                <!-- Metrics Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-xl transform hover:scale-105 transition-all">
-                        <div class="flex items-center justify-between mb-3">
-                            <i class="fas fa-bullseye text-4xl opacity-50"></i>
-                            <span class="text-xs font-bold bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full">Accuracy</span>
-                        </div>
-                        <h3 class="text-5xl font-black mb-2">{{ metrics.accuracy }}%</h3>
-                        <p class="text-blue-100 text-sm font-semibold uppercase">Model Accuracy</p>
-                    </div>
-                    
-                    <div class="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl p-6 text-white shadow-xl transform hover:scale-105 transition-all">
-                        <div class="flex items-center justify-between mb-3">
-                            <i class="fas fa-crosshairs text-4xl opacity-50"></i>
-                            <span class="text-xs font-bold bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full">Precision</span>
-                        </div>
-                        <h3 class="text-5xl font-black mb-2">{{ metrics.precision }}%</h3>
-                        <p class="text-green-100 text-sm font-semibold uppercase">Precision Score</p>
-                    </div>
-                    
-                    <div class="bg-gradient-to-br from-yellow-500 to-orange-600 rounded-2xl p-6 text-white shadow-xl transform hover:scale-105 transition-all">
-                        <div class="flex items-center justify-between mb-3">
-                            <i class="fas fa-trophy text-4xl opacity-50"></i>
-                            <span class="text-xs font-bold bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full">Recall</span>
-                        </div>
-                        <h3 class="text-5xl font-black mb-2">{{ metrics.recall }}%</h3>
-                        <p class="text-yellow-100 text-sm font-semibold uppercase">Recall Score</p>
-                    </div>
-                    
-                    <div class="bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl p-6 text-white shadow-xl transform hover:scale-105 transition-all">
-                        <div class="flex items-center justify-between mb-3">
-                            <i class="fas fa-star text-4xl opacity-50"></i>
-                            <span class="text-xs font-bold bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full">F1 Score</span>
-                        </div>
-                        <h3 class="text-5xl font-black mb-2">{{ metrics.f1_score }}%</h3>
-                        <p class="text-purple-100 text-sm font-semibold uppercase">F1 Score</p>
-                    </div>
-                </div>
-                
-                <!-- Global Wordclouds -->
-                <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
-                    <i class="fas fa-cloud mr-2 text-blue-600"></i>
-                    Global Wordcloud Analysis
-                </h3>
-                
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl overflow-hidden border-2 border-green-300 shadow-xl">
-                        <div class="bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-4">
-                            <h4 class="text-xl font-black text-white flex items-center">
-                                <i class="fas fa-smile-beam mr-3"></i>
-                                GLOBAL POSITIF (Semua Data)
-                            </h4>
-                        </div>
-                        <div class="p-6">
-                            {% if wc_pos %}
-                            <div class="bg-white rounded-xl p-4 shadow-lg">
-                                <img src="data:image/png;base64,{{ wc_pos }}" class="w-full rounded-lg"/>
-                            </div>
-                            {% else %}
-                            <div class="bg-white rounded-xl p-12 text-center">
-                                <i class="fas fa-cloud text-6xl text-gray-300 mb-4"></i>
-                                <p class="text-gray-500 font-semibold">Belum ada data</p>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    <div class="bg-gradient-to-br from-red-50 to-pink-50 rounded-2xl overflow-hidden border-2 border-red-300 shadow-xl">
-                        <div class="bg-gradient-to-r from-red-500 to-pink-600 px-6 py-4">
-                            <h4 class="text-xl font-black text-white flex items-center">
-                                <i class="fas fa-frown mr-3"></i>
-                                GLOBAL NEGATIF (Semua Data)
-                            </h4>
-                        </div>
-                        <div class="p-6">
-                            {% if wc_neg %}
-                            <div class="bg-white rounded-xl p-4 shadow-lg">
-                                <img src="data:image/png;base64,{{ wc_neg }}" class="w-full rounded-lg"/>
-                            </div>
-                            {% else %}
-                            <div class="bg-white rounded-xl p-12 text-center">
-                                <i class="fas fa-cloud text-6xl text-gray-300 mb-4"></i>
-                                <p class="text-gray-500 font-semibold">Belum ada data</p>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Section 2: Wordcloud Viewer -->
-        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden mb-8" data-aos="fade-up" data-aos-delay="300">
-            <div class="bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 px-8 py-6">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <h2 class="text-2xl font-black text-white flex items-center">
-                        <i class="fas fa-microscope mr-3"></i>
-                        2. Wordcloud Viewer
-                    </h2>
-                    
-                    <div class="w-full md:w-80">
-                        <select class="w-full px-4 py-3 rounded-xl border-2 border-white/30 bg-white/10 backdrop-blur-sm text-white font-semibold focus:outline-none focus:ring-4 focus:ring-white/50 transition-all cursor-pointer" id="wcSelector">
-                            <option value="" class="text-gray-800">-- Pilih RS untuk Lihat Wordcloud --</option>
-                            {% for rs in hospitals %}
-                            <option value="{{ rs }}" class="text-gray-800">{{ rs }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="p-8">
-                <!-- Loading State -->
-                <div id="loadingWC" class="hidden text-center py-20">
-                    <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full mb-6 animate-pulse">
-                        <i class="fas fa-spinner fa-spin text-3xl text-white"></i>
-                    </div>
-                    <p class="text-gray-600 font-semibold text-lg">Memuat wordcloud...</p>
-                </div>
-                
-                <!-- Results -->
-                <div id="wcResult" class="hidden">
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border-2 border-green-200">
-                            <h3 class="text-lg font-bold text-green-800 mb-4 flex items-center">
-                                <i class="fas fa-thumbs-up mr-2"></i>
-                                Sentimen Positif
-                            </h3>
-                            <div class="bg-white rounded-xl p-4 shadow-lg">
-                                <img id="imgPosSpecific" src="" class="w-full rounded-lg"/>
-                            </div>
-                            <p id="msgPosSpecific" class="hidden text-center text-gray-500 mt-4 font-semibold">
-                                <i class="fas fa-info-circle mr-2"></i>Data tidak cukup untuk menghasilkan wordcloud
-                            </p>
-                        </div>
-                        
-                        <div class="bg-gradient-to-br from-red-50 to-pink-50 rounded-2xl p-6 border-2 border-red-200">
-                            <h3 class="text-lg font-bold text-red-800 mb-4 flex items-center">
-                                <i class="fas fa-thumbs-down mr-2"></i>
-                                Sentimen Negatif
-                            </h3>
-                            <div class="bg-white rounded-xl p-4 shadow-lg">
-                                <img id="imgNegSpecific" src="" class="w-full rounded-lg"/>
-                            </div>
-                            <p id="msgNegSpecific" class="hidden text-center text-gray-500 mt-4 font-semibold">
-                                <i class="fas fa-info-circle mr-2"></i>Data tidak cukup untuk menghasilkan wordcloud
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Section 3: Diagnostic Center -->
-        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden mb-8" data-aos="fade-up" data-aos-delay="400">
-            <div class="bg-gradient-to-r from-yellow-600 via-orange-600 to-red-600 px-8 py-6">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <h2 class="text-2xl font-black text-white flex items-center">
-                        <i class="fas fa-stethoscope mr-3"></i>
-                        3. Diagnostic Center (Evaluasi)
-                    </h2>
-                    
-                    <div class="w-full md:w-80">
-                        <select class="w-full px-4 py-3 rounded-xl border-2 border-white/30 bg-white/10 backdrop-blur-sm text-white font-semibold focus:outline-none focus:ring-4 focus:ring-white/50 transition-all cursor-pointer" id="diagSelector">
-                            <option value="" class="text-gray-800">-- Pilih RS untuk Evaluasi --</option>
-                            {% for rs in hospitals %}
-                            <option value="{{ rs }}" class="text-gray-800">{{ rs }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="p-8">
-                <div class="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-2xl p-6 mb-8">
-                    <div class="flex items-start space-x-4">
-                        <div class="flex-shrink-0">
-                            <div class="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center">
-                                <i class="fas fa-info-circle text-white text-xl"></i>
-                            </div>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-yellow-800 mb-2">Informasi Analisis</h4>
-                            <p class="text-yellow-700 leading-relaxed">
-                                Membandingkan dataset training (Masa Lalu) dengan inputan user saat ini (Real-time) untuk mendeteksi perubahan tren pelayanan.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Loading State -->
-                <div id="loadingDiag" class="hidden text-center py-20">
-                    <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-full mb-6">
-                        <i class="fas fa-spinner fa-spin text-3xl text-white"></i>
-                    </div>
-                    <p class="text-gray-600 font-semibold text-lg">AI sedang menganalisis perubahan tren...</p>
-                </div>
-                
-                <!-- Results -->
-                <div id="diagResult" class="hidden">
-                    <!-- AI Analysis -->
-                    <div class="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-8 mb-8 border-2 border-gray-200">
-                        <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-                            <i class="fas fa-robot mr-3 text-blue-600"></i>
-                            Kesimpulan AI
-                        </h3>
-                        
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                            <div class="bg-white rounded-xl p-6 border-l-4 border-red-500 shadow-lg">
-                                <div class="flex items-center space-x-3 mb-4">
-                                    <div class="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-exclamation-triangle text-white"></i>
-                                    </div>
-                                    <h4 class="font-bold text-red-800 text-lg">Analisis Keluhan</h4>
-                                </div>
-                                <p id="txtAnalysisNeg" class="text-gray-700 leading-relaxed">...</p>
-                            </div>
-                            
-                            <div class="bg-white rounded-xl p-6 border-l-4 border-green-500 shadow-lg">
-                                <div class="flex items-center space-x-3 mb-4">
-                                    <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-check-circle text-white"></i>
-                                    </div>
-                                    <h4 class="font-bold text-green-800 text-lg">Analisis Kekuatan</h4>
-                                </div>
-                                <p id="txtAnalysisPos" class="text-gray-700 leading-relaxed">...</p>
-                            </div>
-                        </div>
-                        
-                        <div class="text-right">
-                            <a id="btnDownloadSpecific" href="#" class="inline-flex items-center space-x-3 px-6 py-3 bg-gradient-to-r from-gray-800 to-gray-900 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all">
-                                <i class="fas fa-file-pdf"></i>
-                                <span>Download Laporan RS Ini</span>
-                                <i class="fas fa-download"></i>
-                            </a>
-                        </div>
-                    </div>
-                    
-                    <!-- Comparison -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <!-- Past Data -->
-                        <div class="bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl overflow-hidden border-2 border-gray-400 shadow-xl">
-                            <div class="bg-gradient-to-r from-gray-700 to-gray-800 px-6 py-4">
-                                <h3 class="text-xl font-black text-white flex items-center">
-                                    <i class="fas fa-history mr-3"></i>
-                                    MASA LALU (Training Data)
-                                </h3>
-                            </div>
-                            <div class="p-6 space-y-6">
-                                <div>
-                                    <h4 class="text-sm font-bold text-red-600 mb-3 flex items-center">
-                                        <i class="fas fa-exclamation-circle mr-2"></i>
-                                        Keluhan Lama
-                                    </h4>
-                                    <div class="bg-white rounded-xl p-4 shadow-lg">
-                                        <img id="imgNegPast" src="" class="w-full rounded-lg"/>
-                                    </div>
-                                </div>
-                                
-                                <div>
-                                    <h4 class="text-sm font-bold text-green-600 mb-3 flex items-center">
-                                        <i class="fas fa-check-circle mr-2"></i>
-                                        Kekuatan Lama
-                                    </h4>
-                                    <div class="bg-white rounded-xl p-4 shadow-lg">
-                                        <img id="imgPosPast" src="" class="w-full rounded-lg"/>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Live Data -->
-                        <div class="bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl overflow-hidden border-2 border-blue-400 shadow-xl">
-                            <div class="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
-                                <h3 class="text-xl font-black text-white flex items-center">
-                                    <i class="fas fa-bolt mr-3"></i>
-                                    MASA SEKARANG (Live Data)
-                                </h3>
-                            </div>
-                            <div class="p-6 space-y-6">
-                                <div>
-                                    <h4 class="text-sm font-bold text-red-600 mb-3 flex items-center">
-                                        <i class="fas fa-exclamation-circle mr-2"></i>
-                                        Keluhan Baru
-                                    </h4>
-                                    <div class="bg-white rounded-xl p-4 shadow-lg">
-                                        <img id="imgNegLive" src="" class="w-full rounded-lg"/>
-                                    </div>
-                                    <p id="msgNegLive" class="hidden text-center text-gray-500 mt-4 font-semibold text-sm">
-                                        <i class="fas fa-info-circle mr-2"></i>Data belum cukup
-                                    </p>
-                                </div>
-                                
-                                <div>
-                                    <h4 class="text-sm font-bold text-green-600 mb-3 flex items-center">
-                                        <i class="fas fa-check-circle mr-2"></i>
-                                        Kekuatan Baru
-                                    </h4>
-                                    <div class="bg-white rounded-xl p-4 shadow-lg">
-                                        <img id="imgPosLive" src="" class="w-full rounded-lg"/>
-                                    </div>
-                                    <p id="msgPosLive" class="hidden text-center text-gray-500 mt-4 font-semibold text-sm">
-                                        <i class="fas fa-info-circle mr-2"></i>Data belum cukup
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+      <a
+        href="{{ url_for('download_report') }}"
+        class="inline-flex items-center px-5 py-2.5 bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-brand-600 hover:border-brand-300 transition-all shadow-sm"
+      >
+        <i class="fas fa-file-pdf mr-2 text-rose-500"></i>
+        Download Laporan Lengkap
+      </a>
     </div>
+
+    <!-- Model Health Check (The "Vitals") -->
+    <div
+      class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8"
+      data-aos="fade-up"
+      data-aos-delay="100"
+    >
+      <!-- Vitals Card -->
+      <div
+        class="lg:col-span-1 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
+      >
+        <div
+          class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center"
+        >
+          <h2 class="font-bold text-slate-800 flex items-center">
+            <i class="fas fa-heartbeat text-rose-500 mr-2"></i>
+            Kesehatan Model
+          </h2>
+          <span class="text-xs font-mono text-slate-400">v1.0.2</span>
+        </div>
+
+        <div class="p-6">
+          <!-- Accuracy Vitals -->
+          <div class="flex justify-between items-end mb-6">
+            <div>
+              <p
+                class="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1"
+              >
+                Test Accuracy
+              </p>
+              <div class="text-4xl font-black text-brand-600">
+                {{ metrics.accuracy }}
+              </div>
+            </div>
+            <div class="text-right">
+              <p
+                class="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1"
+              >
+                Train Accuracy
+              </p>
+              <div class="text-2xl font-bold text-slate-400">
+                {{ metrics.train_accuracy }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Status Indicator -->
+          <div
+            class="rounded-lg p-4 border {% if metrics.status == 'Good Fit (Ideal)' %} bg-emerald-50 border-emerald-100 {% else %} bg-amber-50 border-amber-100 {% endif %}"
+          >
+            <div class="flex items-start space-x-3">
+              <i
+                class="fas {% if metrics.status == 'Good Fit (Ideal)' %}fa-check-circle text-emerald-500{% else %}fa-exclamation-triangle text-amber-500{% endif %} mt-1"
+              ></i>
+              <div>
+                <h3
+                  class="text-sm font-bold {% if metrics.status == 'Good Fit (Ideal)' %}text-emerald-800{% else %}text-amber-800{% endif %}"
+                >
+                  {{ metrics.status }}
+                </h3>
+                <p
+                  class="text-xs mt-1 {% if metrics.status == 'Good Fit (Ideal)' %}text-emerald-700{% else %}text-amber-700{% endif %}"
+                >
+                  {{ metrics.advice }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Learning Curve -->
+      <div
+        class="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
+      >
+        <div
+          class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center"
+        >
+          <h2 class="font-bold text-slate-800 flex items-center">
+            <i class="fas fa-chart-area text-brand-600 mr-2"></i>
+            Grafik Learning Curve
+          </h2>
+          <span class="text-xs text-slate-500"
+            >Deteksi Overfitting/Underfitting</span
+          >
+        </div>
+        <div
+          class="p-6 flex items-center justify-center bg-white min-h-[250px]"
+        >
+          {% if learning_curve %}
+          <img
+            src="data:image/png;base64,{{ learning_curve }}"
+            class="max-h-64 rounded shadow-sm border border-slate-100"
+          />
+          {% else %}
+          <div class="text-center text-slate-400">
+            <i class="fas fa-chart-line text-4xl mb-2"></i>
+            <p class="text-sm">
+              Grafik akan tersedia setelah proses training ulang.
+            </p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 1: Global Metrics Grid -->
+    <h3
+      class="text-lg font-bold text-slate-800 mb-4 flex items-center"
+      data-aos="fade-up"
+    >
+      <i class="fas fa-globe-asia mr-2 text-slate-400"></i> Global Performance
+      Metrics
+    </h3>
+    <div
+      class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8"
+      data-aos="fade-up"
+      data-aos-delay="200"
+    >
+      <!-- Accuracy -->
+      <div
+        class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-brand-300 transition-colors"
+      >
+        <div class="flex justify-between items-start mb-2">
+          <span class="text-xs font-bold text-slate-400 uppercase"
+            >Accuracy</span
+          >
+          <i class="fas fa-bullseye text-brand-200"></i>
+        </div>
+        <div class="text-3xl font-black text-slate-800">
+          {{ metrics.accuracy }}<span class="text-sm text-slate-400 font-normal"
+            >%</span
+          >
+        </div>
+      </div>
+
+      <!-- Precision -->
+      <div
+        class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-emerald-300 transition-colors"
+      >
+        <div class="flex justify-between items-start mb-2">
+          <span class="text-xs font-bold text-slate-400 uppercase"
+            >Precision</span
+          >
+          <i class="fas fa-crosshairs text-emerald-200"></i>
+        </div>
+        <div class="text-3xl font-black text-emerald-600">
+          {{ metrics.precision }}<span
+            class="text-sm text-slate-400 font-normal"
+            >%</span
+          >
+        </div>
+      </div>
+
+      <!-- Recall -->
+      <div
+        class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-amber-300 transition-colors"
+      >
+        <div class="flex justify-between items-start mb-2">
+          <span class="text-xs font-bold text-slate-400 uppercase">Recall</span>
+          <i class="fas fa-filter text-amber-200"></i>
+        </div>
+        <div class="text-3xl font-black text-amber-600">
+          {{ metrics.recall }}<span class="text-sm text-slate-400 font-normal"
+            >%</span
+          >
+        </div>
+      </div>
+
+      <!-- F1 Score -->
+      <div
+        class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-purple-300 transition-colors"
+      >
+        <div class="flex justify-between items-start mb-2">
+          <span class="text-xs font-bold text-slate-400 uppercase"
+            >F1 Score</span
+          >
+          <i class="fas fa-star text-purple-200"></i>
+        </div>
+        <div class="text-3xl font-black text-purple-600">
+          {{ metrics.f1_score }}<span class="text-sm text-slate-400 font-normal"
+            >%</span
+          >
+        </div>
+      </div>
+    </div>
+
+    <!-- Global Wordclouds -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12" data-aos="fade-up">
+      <!-- Positive -->
+      <div
+        class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
+      >
+        <div
+          class="px-4 py-3 bg-emerald-50 border-b border-emerald-100 flex items-center justify-between"
+        >
+          <span class="font-bold text-emerald-800 text-sm"
+            >Global Wordcloud: POSITIF</span
+          >
+          <i class="fas fa-smile text-emerald-500"></i>
+        </div>
+        <div class="p-4 flex justify-center">
+          {% if wc_pos %}
+          <img
+            src="data:image/png;base64,{{ wc_pos }}"
+            class="max-h-60 rounded"
+          />
+          {% else %}
+          <p class="text-slate-400 text-sm py-10">Data tidak tersedia</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Negative -->
+      <div
+        class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
+      >
+        <div
+          class="px-4 py-3 bg-rose-50 border-b border-rose-100 flex items-center justify-between"
+        >
+          <span class="font-bold text-rose-800 text-sm"
+            >Global Wordcloud: NEGATIF</span
+          >
+          <i class="fas fa-frown text-rose-500"></i>
+        </div>
+        <div class="p-4 flex justify-center">
+          {% if wc_neg %}
+          <img
+            src="data:image/png;base64,{{ wc_neg }}"
+            class="max-h-60 rounded"
+          />
+          {% else %}
+          <p class="text-slate-400 text-sm py-10">Data tidak tersedia</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: Wordcloud Viewer & Diagnostic -->
+    <div
+      class="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8"
+      data-aos="fade-up"
+      data-aos-delay="300"
+    >
+      <!-- 2.1 Wordcloud Viewer -->
+      <div
+        class="bg-white rounded-xl border border-slate-200 shadow-sm h-full flex flex-col"
+      >
+        <div
+          class="px-6 py-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+        >
+          <h2 class="font-bold text-slate-800 flex items-center">
+            <i class="fas fa-microscope text-brand-600 mr-2"></i>
+            Wordcloud Viewer
+          </h2>
+          <select
+            id="wcSelector"
+            class="bg-slate-50 border border-slate-300 text-slate-700 text-sm rounded-lg focus:ring-brand-500 focus:border-brand-500 block w-full sm:w-auto p-2"
+          >
+            <option value="">-- Pilih RS --</option>
+            {% for rs in hospitals %}
+            <option value="{{ rs }}">{{ rs }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="p-6 flex-grow">
+          <!-- Loading -->
+          <div
+            id="loadingWC"
+            class="hidden h-full flex flex-col items-center justify-center py-10"
+          >
+            <i
+              class="fas fa-circle-notch fa-spin text-3xl text-brand-500 mb-3"
+            ></i>
+            <p class="text-slate-500 text-sm">Memuat visualisasi...</p>
+          </div>
+
+          <!-- Result -->
+          <div id="wcResult" class="hidden grid grid-cols-2 gap-4">
+            <div class="text-center">
+              <p class="text-xs font-bold text-emerald-600 uppercase mb-2">
+                Positif
+              </p>
+              <div
+                class="bg-slate-50 rounded border border-slate-100 p-2 min-h-[150px] flex items-center justify-center"
+              >
+                <img id="imgPosSpecific" src="" class="w-full rounded hidden" />
+                <p id="msgPosSpecific" class="text-xs text-slate-400 hidden">
+                  Data Kurang
+                </p>
+              </div>
+            </div>
+            <div class="text-center">
+              <p class="text-xs font-bold text-rose-600 uppercase mb-2">
+                Negatif
+              </p>
+              <div
+                class="bg-slate-50 rounded border border-slate-100 p-2 min-h-[150px] flex items-center justify-center"
+              >
+                <img id="imgNegSpecific" src="" class="w-full rounded hidden" />
+                <p id="msgNegSpecific" class="text-xs text-slate-400 hidden">
+                  Data Kurang
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Default State -->
+          <div
+            id="defaultWC"
+            class="h-full flex items-center justify-center py-10 text-slate-400"
+          >
+            <p class="text-sm">
+              Pilih rumah sakit untuk melihat distribusi kata.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2.2 Diagnostic Center -->
+      <div
+        class="bg-white rounded-xl border border-slate-200 shadow-sm h-full flex flex-col"
+      >
+        <div
+          class="px-6 py-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+        >
+          <h2 class="font-bold text-slate-800 flex items-center">
+            <i class="fas fa-stethoscope text-amber-500 mr-2"></i>
+            Diagnostic Center
+          </h2>
+          <select
+            id="diagSelector"
+            class="bg-slate-50 border border-slate-300 text-slate-700 text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full sm:w-auto p-2"
+          >
+            <option value="">-- Pilih RS --</option>
+            {% for rs in hospitals %}
+            <option value="{{ rs }}">{{ rs }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="p-6 flex-grow">
+          <!-- Loading -->
+          <div
+            id="loadingDiag"
+            class="hidden h-full flex flex-col items-center justify-center py-10"
+          >
+            <i
+              class="fas fa-circle-notch fa-spin text-3xl text-amber-500 mb-3"
+            ></i>
+            <p class="text-slate-500 text-sm">Menganalisis tren...</p>
+          </div>
+
+          <!-- Result -->
+          <div id="diagResult" class="hidden space-y-4">
+            <!-- AI Analysis Box -->
+            <div
+              class="bg-slate-50 p-4 rounded-lg border border-slate-200 text-sm"
+            >
+              <h4
+                class="font-bold text-slate-800 mb-2 border-b border-slate-200 pb-2"
+              >
+                Kesimpulan AI
+              </h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <span class="text-xs font-bold text-rose-600 uppercase"
+                    >Analisis Keluhan</span
+                  >
+                  <p
+                    id="txtAnalysisNeg"
+                    class="text-slate-600 mt-1 text-xs leading-relaxed"
+                  >
+                    ...
+                  </p>
+                </div>
+                <div>
+                  <span class="text-xs font-bold text-emerald-600 uppercase"
+                    >Analisis Kekuatan</span
+                  >
+                  <p
+                    id="txtAnalysisPos"
+                    class="text-slate-600 mt-1 text-xs leading-relaxed"
+                  >
+                    ...
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Comparison -->
+            <div class="grid grid-cols-2 gap-4">
+              <!-- Past -->
+              <div class="border border-slate-200 rounded-lg p-3">
+                <p
+                  class="text-xs font-bold text-slate-500 uppercase mb-2 text-center"
+                >
+                  Training Data (Past)
+                </p>
+                <img
+                  id="imgNegPast"
+                  src=""
+                  class="w-full rounded mb-2 hidden"
+                />
+                <img id="imgPosPast" src="" class="w-full rounded hidden" />
+              </div>
+              <!-- Live -->
+              <div
+                class="border-2 border-brand-100 bg-brand-50/30 rounded-lg p-3"
+              >
+                <p
+                  class="text-xs font-bold text-brand-600 uppercase mb-2 text-center"
+                >
+                  Live Data (Now)
+                </p>
+                <img
+                  id="imgNegLive"
+                  src=""
+                  class="w-full rounded mb-2 hidden"
+                />
+                <p
+                  id="msgNegLive"
+                  class="text-xs text-center text-slate-400 hidden mb-2"
+                >
+                  No Data
+                </p>
+                <img id="imgPosLive" src="" class="w-full rounded hidden" />
+                <p
+                  id="msgPosLive"
+                  class="text-xs text-center text-slate-400 hidden"
+                >
+                  No Data
+                </p>
+              </div>
+            </div>
+
+            <div class="text-right pt-2">
+              <a
+                id="btnDownloadSpecific"
+                href="#"
+                class="text-xs font-bold text-brand-600 hover:text-brand-800 hover:underline"
+              >
+                <i class="fas fa-download mr-1"></i>Download Report PDF
+              </a>
+            </div>
+          </div>
+
+          <!-- Default State -->
+          <div
+            id="defaultDiag"
+            class="h-full flex items-center justify-center py-10 text-slate-400"
+          >
+            <p class="text-sm">Pilih rumah sakit untuk komparasi data.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <script>
-// Section 2: Wordcloud Viewer
-document.getElementById('wcSelector').addEventListener('change', function() {
+  // Helper to hide default msg
+  function showResults(containerId, defaultId) {
+    document.getElementById(containerId).classList.remove("hidden");
+    const def = document.getElementById(defaultId);
+    if (def) def.classList.add("hidden");
+  }
+
+  // Section 2: Wordcloud Viewer
+  document.getElementById("wcSelector").addEventListener("change", function () {
     const rsName = this.value;
-    const container = document.getElementById('wcResult');
-    const loading = document.getElementById('loadingWC');
-    
-    container.classList.add('hidden');
-    loading.classList.remove('hidden');
-    
-    fetch('/api/get_wordcloud', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ hospital: rsName })
+    const loading = document.getElementById("loadingWC");
+    const resultDiv = document.getElementById("wcResult");
+    const defaultDiv = document.getElementById("defaultWC");
+
+    if (!rsName) {
+      resultDiv.classList.add("hidden");
+      defaultDiv.classList.remove("hidden");
+      return;
+    }
+
+    defaultDiv.classList.add("hidden");
+    resultDiv.classList.add("hidden");
+    loading.classList.remove("hidden");
+
+    fetch("/api/get_wordcloud", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ hospital: rsName }),
     })
-    .then(res => res.json())
-    .then(data => {
-        loading.classList.add('hidden');
-        container.classList.remove('hidden');
-        
+      .then((res) => res.json())
+      .then((data) => {
+        loading.classList.add("hidden");
+        resultDiv.classList.remove("hidden");
+
         // Positive wordcloud
-        const imgPos = document.getElementById('imgPosSpecific');
-        const msgPos = document.getElementById('msgPosSpecific');
+        const imgPos = document.getElementById("imgPosSpecific");
+        const msgPos = document.getElementById("msgPosSpecific");
         if (data.wc_pos) {
-            imgPos.src = 'data:image/png;base64,' + data.wc_pos;
-            imgPos.classList.remove('hidden');
-            msgPos.classList.add('hidden');
+          imgPos.src = "data:image/png;base64," + data.wc_pos;
+          imgPos.classList.remove("hidden");
+          msgPos.classList.add("hidden");
         } else {
-            imgPos.classList.add('hidden');
-            msgPos.classList.remove('hidden');
+          imgPos.classList.add("hidden");
+          msgPos.classList.remove("hidden");
         }
         // Negative wordcloud
-    const imgNeg = document.getElementById('imgNegSpecific');
-    const msgNeg = document.getElementById('msgNegSpecific');
-    if (data.wc_neg) {
-        imgNeg.src = 'data:image/png;base64,' + data.wc_neg;
-        imgNeg.classList.remove('hidden');
-        msgNeg.classList.add('hidden');
-    } else {
-        imgNeg.classList.add('hidden');
-        msgNeg.classList.remove('hidden');
-    }
-});
-});
-
-document.getElementById('diagSelector').addEventListener('change', function() {
-const rsName = this.value;
-const container = document.getElementById('diagResult');
-const loading = document.getElementById('loadingDiag');
-container.classList.add('hidden');
-loading.classList.remove('hidden');
-
-// Update download link
-document.getElementById('btnDownloadSpecific').href = 
-    '/api/download_report_specific/' + encodeURIComponent(rsName);
-
-fetch('/api/get_hospital_analysis', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ hospital: rsName })
-})
-.then(res => res.json())
-.then(data => {
-    loading.classList.add('hidden');
-    container.classList.remove('hidden');
-    
-    // Set analysis text
-    document.getElementById('txtAnalysisNeg').innerText = data.analysis_neg;
-    document.getElementById('txtAnalysisPos').innerText = data.analysis_pos;
-    
-    // Helper function to set images
-    const setImg = (imgId, msgId, b64) => {
-        const img = document.getElementById(imgId);
-        const msg = msgId ? document.getElementById(msgId) : null;
-        
-        if (b64) {
-            img.src = 'data:image/png;base64,' + b64;
-            img.classList.remove('hidden');
-            if (msg) msg.classList.add('hidden');
+        const imgNeg = document.getElementById("imgNegSpecific");
+        const msgNeg = document.getElementById("msgNegSpecific");
+        if (data.wc_neg) {
+          imgNeg.src = "data:image/png;base64," + data.wc_neg;
+          imgNeg.classList.remove("hidden");
+          msgNeg.classList.add("hidden");
         } else {
-            img.classList.add('hidden');
-            if (msg) msg.classList.remove('hidden');
+          imgNeg.classList.add("hidden");
+          msgNeg.classList.remove("hidden");
         }
-    };
-    
-    // Set all images
-    setImg('imgNegPast', null, data.wc_neg_past);
-    setImg('imgPosPast', null, data.wc_pos_past);
-    setImg('imgNegLive', 'msgNegLive', data.wc_neg_live);
-    setImg('imgPosLive', 'msgPosLive', data.wc_pos_live);
-});
+      });
+  });
 
-});
+  document
+    .getElementById("diagSelector")
+    .addEventListener("change", function () {
+      const rsName = this.value;
+      const loading = document.getElementById("loadingDiag");
+      const resultDiv = document.getElementById("diagResult");
+      const defaultDiv = document.getElementById("defaultDiag");
+
+      if (!rsName) {
+        resultDiv.classList.add("hidden");
+        defaultDiv.classList.remove("hidden");
+        return;
+      }
+
+      defaultDiv.classList.add("hidden");
+      resultDiv.classList.add("hidden");
+      loading.classList.remove("hidden");
+
+      // Update download link
+      document.getElementById("btnDownloadSpecific").href =
+        "/api/download_report_specific/" + encodeURIComponent(rsName);
+
+      fetch("/api/get_hospital_analysis", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ hospital: rsName }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          loading.classList.add("hidden");
+          resultDiv.classList.remove("hidden");
+
+          // Set analysis text
+          document.getElementById("txtAnalysisNeg").innerText =
+            data.analysis_neg || "Tidak ada data analisis negatif.";
+          document.getElementById("txtAnalysisPos").innerText =
+            data.analysis_pos || "Tidak ada data analisis positif.";
+
+          // Helper function to set images
+          const setImg = (imgId, msgId, b64) => {
+            const img = document.getElementById(imgId);
+            const msg = msgId ? document.getElementById(msgId) : null;
+
+            if (b64) {
+              img.src = "data:image/png;base64," + b64;
+              img.classList.remove("hidden");
+              if (msg) msg.classList.add("hidden");
+            } else {
+              img.classList.add("hidden");
+              if (msg) msg.classList.remove("hidden");
+            }
+          };
+
+          // Set all images
+          setImg("imgNegPast", null, data.wc_neg_past);
+          setImg("imgPosPast", null, data.wc_pos_past);
+          setImg("imgNegLive", "msgNegLive", data.wc_neg_live);
+          setImg("imgPosLive", "msgPosLive", data.wc_pos_live);
+        });
+    });
 </script>
-{% endblock %}</parameter>
+{% endblock %}

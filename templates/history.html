@@ -1,317 +1,272 @@
 {% extends "base.html" %} {% block content %}
 
-<section class="py-12">
+<section class="py-8 lg:py-12 bg-slate-50 min-h-screen">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    
     <!-- Header Section -->
-    <div
-      class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4"
-      data-aos="fade-up"
-    >
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4" data-aos="fade-up">
       <div>
-        <div class="flex items-center space-x-3 mb-2">
-          <i class="fas fa-history text-4xl text-purple-600"></i>
-          <h1 class="text-4xl font-black text-gray-800">Riwayat Data</h1>
-        </div>
-        <p class="text-gray-600 text-lg">
-          Semua laporan yang telah masuk ke sistem
-          <span
-            class="inline-flex items-center ml-2 px-3 py-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full text-sm font-bold shadow-lg"
-          >
-            <i class="fas fa-database mr-2"></i>{{ logs|length }} Total
-          </span>
+        <h1 class="text-3xl font-black text-slate-900 tracking-tight">Riwayat Laporan</h1>
+        <p class="text-slate-500 mt-1">
+          Arsip digital seluruh ulasan masuk & hasil analisis AI.
         </p>
       </div>
 
       <!-- Action Buttons -->
       <div class="flex gap-3">
-        <button
-          onclick="window.print()"
-          class="px-5 py-2.5 bg-white text-gray-700 border-2 border-gray-300 rounded-lg font-semibold hover:border-blue-500 hover:text-blue-600 transition-all"
-        >
-          <i class="fas fa-print mr-2"></i>Cetak
+        <button onclick="window.print()" class="px-4 py-2 bg-white text-slate-700 border border-slate-300 rounded-lg text-sm font-semibold hover:bg-slate-50 hover:text-brand-600 transition-all shadow-sm">
+          <i class="fas fa-print mr-2"></i>Cetak Laporan
         </button>
-        <button
-          onclick="exportToCSV()"
-          class="px-5 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all"
-        >
-          <i class="fas fa-download mr-2"></i>Export CSV
+        <button onclick="exportToCSV()" class="px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-semibold hover:bg-brand-700 transition-all shadow-sm shadow-brand-500/30">
+          <i class="fas fa-file-csv mr-2"></i>Export CSV
         </button>
       </div>
     </div>
 
-    <!-- Stats Summary -->
-    <div
-      class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8"
-      data-aos="fade-up"
-      data-aos-delay="100"
-    >
-      <div
-        class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-5 text-white shadow-lg"
-      >
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-blue-100 text-sm font-medium mb-1">Total Laporan</p>
-            <p class="text-3xl font-black">{{ logs|length }}</p>
-          </div>
-          <i class="fas fa-file-alt text-4xl opacity-30"></i>
+    <!-- Stats Summary (Clean Cards) -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8" data-aos="fade-up" data-aos-delay="100">
+      <!-- Total -->
+      <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Total Entri</p>
+          <p class="text-2xl font-black text-slate-800">{{ logs|length }}</p>
+        </div>
+        <div class="w-10 h-10 rounded-lg bg-brand-50 flex items-center justify-center text-brand-600">
+          <i class="fas fa-database"></i>
         </div>
       </div>
 
-      <div
-        class="bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl p-5 text-white shadow-lg"
-      >
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-green-100 text-sm font-medium mb-1">
-              Sentimen Positif
-            </p>
-            <p class="text-3xl font-black">
-              {{ logs|selectattr('sentiment', 'equalto', 'Positif')|list|length
-              }}
-            </p>
-          </div>
-          <i class="fas fa-smile text-4xl opacity-30"></i>
+      <!-- Positif -->
+      <div class="bg-white rounded-xl p-5 border border-emerald-100 shadow-sm flex items-center justify-between relative overflow-hidden">
+        <div class="absolute inset-y-0 left-0 w-1 bg-emerald-500"></div>
+        <div>
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Positif</p>
+          <p class="text-2xl font-black text-emerald-600">
+            {{ logs|selectattr('sentiment', 'equalto', 'Positif')|list|length }}
+          </p>
+        </div>
+        <div class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
+          <i class="fas fa-thumbs-up"></i>
         </div>
       </div>
 
-      <div
-        class="bg-gradient-to-br from-red-500 to-pink-600 rounded-xl p-5 text-white shadow-lg"
-      >
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-red-100 text-sm font-medium mb-1">
-              Sentimen Negatif
-            </p>
-            <p class="text-3xl font-black">
-              {{ logs|selectattr('sentiment', 'equalto', 'Negatif')|list|length
-              }}
-            </p>
-          </div>
-          <i class="fas fa-frown text-4xl opacity-30"></i>
+      <!-- Negatif -->
+      <div class="bg-white rounded-xl p-5 border border-rose-100 shadow-sm flex items-center justify-between relative overflow-hidden">
+        <div class="absolute inset-y-0 left-0 w-1 bg-rose-500"></div>
+        <div>
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Negatif</p>
+          <p class="text-2xl font-black text-rose-600">
+            {{ logs|selectattr('sentiment', 'equalto', 'Negatif')|list|length }}
+          </p>
+        </div>
+        <div class="w-10 h-10 rounded-lg bg-rose-50 flex items-center justify-center text-rose-600">
+          <i class="fas fa-thumbs-down"></i>
         </div>
       </div>
 
-      <div
-        class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-5 text-white shadow-lg"
-      >
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-purple-100 text-sm font-medium mb-1">Rumah Sakit</p>
-            <p class="text-3xl font-black">
-              {{ logs|map(attribute='hospital_name')|unique|list|length }}
-            </p>
-          </div>
-          <i class="fas fa-hospital text-4xl opacity-30"></i>
+      <!-- Fasilitas -->
+      <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Fasilitas RS</p>
+          <p class="text-2xl font-black text-slate-800">
+            {{ logs|map(attribute='hospital_name')|unique|list|length }}
+          </p>
+        </div>
+        <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600">
+          <i class="fas fa-hospital"></i>
         </div>
       </div>
     </div>
 
-    <!-- Search and Filter -->
-    <div
-      class="bg-white rounded-2xl shadow-xl p-6 mb-8"
-      data-aos="fade-up"
-      data-aos-delay="200"
-    >
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="md:col-span-2">
-          <label class="block text-sm font-semibold text-gray-700 mb-2">
-            <i class="fas fa-search mr-2"></i>Cari Laporan
-          </label>
+    <!-- Toolbar: Search and Filter -->
+    <div class="bg-white rounded-t-xl border border-slate-200 border-b-0 p-4" data-aos="fade-up" data-aos-delay="200">
+      <div class="flex flex-col md:flex-row gap-4">
+        <div class="flex-1 relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="fas fa-search text-slate-400"></i>
+          </div>
           <input
             type="text"
             id="searchInput"
-            placeholder="Cari berdasarkan rumah sakit atau ulasan..."
-            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+            placeholder="Cari nama RS, isi ulasan, atau tanggal..."
+            class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 focus:bg-white transition-all"
             onkeyup="filterTable()"
           />
         </div>
 
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-2">
-            <i class="fas fa-filter mr-2"></i>Filter Sentimen
-          </label>
-          <select
-            id="sentimentFilter"
-            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all appearance-none cursor-pointer"
-            onchange="filterTable()"
-          >
-            <option value="">Semua Sentimen</option>
-            <option value="Positif">Positif</option>
-            <option value="Negatif">Negatif</option>
-          </select>
+        <div class="w-full md:w-48">
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <i class="fas fa-filter text-slate-400 text-xs"></i>
+            </div>
+            <select
+              id="sentimentFilter"
+              class="w-full pl-9 pr-8 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 focus:bg-white transition-all appearance-none cursor-pointer text-slate-700"
+              onchange="filterTable()"
+            >
+              <option value="">Semua Status</option>
+              <option value="Positif">Positif</option>
+              <option value="Negatif">Negatif</option>
+            </select>
+            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+              <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Table Container -->
-    <div
-      class="bg-white rounded-2xl shadow-xl overflow-hidden"
-      data-aos="fade-up"
-      data-aos-delay="300"
-    >
+    <div class="bg-white rounded-b-xl border border-slate-200 shadow-sm overflow-hidden mb-8" data-aos="fade-up" data-aos-delay="300">
       {% if logs|length > 0 %}
       <div class="overflow-x-auto">
-        <table class="w-full" id="historyTable">
-          <thead class="bg-gradient-to-r from-gray-50 to-blue-50">
-            <tr>
-              <th
-                class="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider"
-              >
-                <i class="fas fa-clock mr-2"></i>Waktu (WIB)
+        <table class="w-full text-left border-collapse" id="historyTable">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200">
+              <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                Waktu
               </th>
-              <th
-                class="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider"
-              >
-                <i class="fas fa-hospital mr-2"></i>Rumah Sakit
+              <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                Fasilitas Kesehatan
               </th>
-              <th
-                class="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider"
-              >
-                <i class="fas fa-comment mr-2"></i>Ulasan
+              <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-1/3">
+                Ringkasan Ulasan
               </th>
-              <th
-                class="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider"
-              >
-                <i class="fas fa-chart-pie mr-2"></i>Sentimen
+              <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                Analisis AI
               </th>
-              <th
-                class="px-6 py-4 text-right text-sm font-bold text-gray-700 uppercase tracking-wider"
-              >
-                <i class="fas fa-cog mr-2"></i>Aksi
+              <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">
+                Opsi
               </th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-200" id="tableBody">
+          <tbody class="divide-y divide-slate-100" id="tableBody">
             {% for log in logs %}
-            <tr
-              class="hover:bg-blue-50 transition-colors duration-150 table-row"
-              data-hospital="{{ log.hospital_name }}"
-              data-review="{{ log.review_text }}"
-              data-sentiment="{{ log.sentiment }}"
-            >
+            <tr class="hover:bg-slate-50/80 transition-colors duration-150 table-row group"
+                data-hospital="{{ log.hospital_name }}"
+                data-review="{{ log.review_text }}"
+                data-sentiment="{{ log.sentiment }}">
+              
+              <!-- Timestamp -->
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="flex items-center text-sm text-gray-600">
-                  <i class="far fa-calendar-alt mr-2 text-blue-500"></i>
-                  <span class="font-medium"
-                    >{{ log.timestamp | datetime_wib }}</span
-                  >
-                </div>
+                <span class="text-sm text-slate-600 font-mono">{{ log.timestamp | datetime_wib }}</span>
               </td>
-              <td class="px-6 py-4">
+
+              <!-- Hospital -->
+              <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">
-                  <div
-                    class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mr-3"
-                  >
-                    <i class="fas fa-hospital-alt text-white"></i>
+                  <div class="w-8 h-8 rounded bg-brand-50 flex items-center justify-center mr-3 text-brand-600">
+                    <i class="fas fa-hospital-symbol"></i>
                   </div>
-                  <div>
-                    <div class="font-bold text-gray-800">
-                      {{ log.hospital_name }}
-                    </div>
-                  </div>
+                  <span class="text-sm font-semibold text-slate-800">{{ log.hospital_name }}</span>
                 </div>
               </td>
+
+              <!-- Review -->
               <td class="px-6 py-4">
-                <div class="text-sm text-gray-700 max-w-md">
-                  <p class="line-clamp-2">{{ log.review_text }}</p>
-                </div>
+                <p class="text-sm text-slate-600 line-clamp-2 max-w-xs group-hover:text-slate-900 transition-colors">
+                  {{ log.review_text }}
+                </p>
               </td>
+
+              <!-- Sentiment -->
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="flex flex-col gap-1">
-                  <span
-                    class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-bold {% if log.sentiment == 'Positif' %} bg-green-100 text-green-800 {% else %} bg-red-100 text-red-800 {% endif %}"
-                  >
-                    <i
-                      class="fas {% if log.sentiment == 'Positif' %}fa-smile{% else %}fa-frown{% endif %} mr-2"
-                    ></i>
+                <div class="flex flex-col items-start gap-1">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium border
+                    {% if log.sentiment == 'Positif' %} bg-emerald-50 text-emerald-700 border-emerald-100
+                    {% else %} bg-rose-50 text-rose-700 border-rose-100 {% endif %}">
+                    <i class="fas {% if log.sentiment == 'Positif' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %} mr-1.5"></i>
                     {{ log.sentiment }}
                   </span>
-                  <span class="text-xs text-gray-500 text-center">
-                    <i class="fas fa-percentage mr-1"></i>{{ log.confidence }}%
+                  <span class="text-[10px] text-slate-400 font-mono">
+                    Conf: {{ log.confidence }}%
                   </span>
                 </div>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-right">
-                <button
-                  onclick="viewDetail('{{ log.hospital_name }}', '{{ log.review_text }}', '{{ log.sentiment }}', '{{ log.confidence }}', '{{ log.timestamp | datetime_wib }}')"
-                  class="inline-flex items-center px-3 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors mr-2"
-                >
-                  <i class="fas fa-eye"></i>
-                </button>
-                <a
-                  href="{{ url_for('delete_log', id=log.id) }}"
-                  onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?');"
-                  class="inline-flex items-center px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
-                >
-                  <i class="fas fa-trash"></i>
-                </a>
+
+              <!-- Actions -->
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <div class="flex justify-end space-x-2 opacity-60 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onclick="viewDetail('{{ log.hospital_name }}', '{{ log.review_text | replace("'", "\\'") | replace('"', '&quot;') | replace('\n', ' ') }}', '{{ log.sentiment }}', '{{ log.confidence }}', '{{ log.timestamp | datetime_wib }}')"
+                    class="text-brand-600 hover:text-brand-800 p-1.5 hover:bg-brand-50 rounded transition-colors"
+                    title="Lihat Detail"
+                  >
+                    <i class="fas fa-eye"></i>
+                  </button>
+                  <a
+                    href="{{ url_for('delete_log', id=log.id) }}"
+                    onclick="return confirm('Tindakan ini tidak dapat dibatalkan. Hapus data?');"
+                    class="text-rose-500 hover:text-rose-700 p-1.5 hover:bg-rose-50 rounded transition-colors"
+                    title="Hapus Data"
+                  >
+                    <i class="fas fa-trash-alt"></i>
+                  </a>
+                </div>
               </td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
+      
+      <!-- Footer Info -->
+      <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+        <p class="text-xs text-slate-500">
+          Menampilkan <span class="font-bold text-slate-700" id="displayCount">{{ logs|length }}</span> data
+        </p>
+        <div class="text-xs text-slate-400 flex items-center">
+          <i class="fas fa-lock mr-1.5"></i> End-to-end Encrypted
+        </div>
+      </div>
+
       {% else %}
       <!-- Empty State -->
-      <div class="text-center py-20">
-        <div
-          class="inline-flex items-center justify-center w-24 h-24 bg-gray-100 rounded-full mb-6"
-        >
-          <i class="fas fa-inbox text-5xl text-gray-400"></i>
+      <div class="text-center py-24 px-4">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-slate-100 rounded-full mb-4">
+          <i class="fas fa-folder-open text-2xl text-slate-400"></i>
         </div>
-        <h3 class="text-2xl font-bold text-gray-800 mb-2">Belum Ada Riwayat</h3>
-        <p class="text-gray-600 mb-6">Belum ada laporan yang masuk ke sistem</p>
-        <a
-          href="{{ url_for('input_page') }}"
-          class="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all"
-        >
-          <i class="fas fa-plus"></i>
-          <span>Buat Laporan Pertama</span>
+        <h3 class="text-lg font-bold text-slate-900 mb-1">Database Kosong</h3>
+        <p class="text-slate-500 mb-6 text-sm">Belum ada laporan ulasan yang tercatat dalam sistem.</p>
+        <a href="{{ url_for('input_page') }}" class="inline-flex items-center px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-medium hover:bg-brand-700 transition-colors">
+          <i class="fas fa-plus mr-2"></i>Buat Laporan Baru
         </a>
       </div>
       {% endif %}
     </div>
-
-    <!-- Pagination Info -->
-    {% if logs|length > 0 %}
-    <div class="mt-6 text-center text-gray-600" data-aos="fade-up">
-      <p class="text-sm">
-        Menampilkan
-        <span class="font-bold text-gray-800" id="displayCount"
-          >{{ logs|length }}</span
-        >
-        dari <span class="font-bold text-gray-800">{{ logs|length }}</span> data
-      </p>
-    </div>
-    {% endif %}
   </div>
 </section>
 
-<!-- Detail Modal -->
-<div
-  id="detailModal"
-  class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
-  onclick="closeModal(event)"
->
-  <div
-    class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden"
-    onclick="event.stopPropagation()"
-  >
-    <div
-      class="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4 flex items-center justify-between"
-    >
-      <h3 class="text-xl font-bold text-white">
-        <i class="fas fa-info-circle mr-2"></i>Detail Laporan
-      </h3>
-      <button
-        onclick="closeModal()"
-        class="text-white hover:text-gray-200 transition-colors"
-      >
-        <i class="fas fa-times text-2xl"></i>
-      </button>
-    </div>
-    <div class="p-6 space-y-4" id="modalContent">
-      <!-- Content will be injected here -->
+<!-- Detail Modal (Medical Card Style) -->
+<div id="detailModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true" onclick="closeModal(event)">
+  <!-- Backdrop -->
+  <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity"></div>
+
+  <div class="flex items-center justify-center min-h-screen p-4 text-center sm:p-0">
+    <div class="relative bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:max-w-lg w-full" onclick="event.stopPropagation()">
+      
+      <!-- Modal Header -->
+      <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+        <h3 class="text-lg font-bold text-slate-900 flex items-center" id="modal-title">
+          <i class="fas fa-file-medical-alt text-brand-600 mr-2"></i>
+          Detail Laporan
+        </h3>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+          <i class="fas fa-times text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="px-6 py-6" id="modalContent">
+        <!-- Content injected via JS -->
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex justify-end">
+        <button onclick="closeModal()" class="px-4 py-2 bg-white text-slate-700 border border-slate-300 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors">
+          Tutup
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -319,9 +274,7 @@
 <script>
   // Filter table function
   function filterTable() {
-    const searchInput = document
-      .getElementById("searchInput")
-      .value.toLowerCase();
+    const searchInput = document.getElementById("searchInput").value.toLowerCase();
     const sentimentFilter = document.getElementById("sentimentFilter").value;
     const rows = document.querySelectorAll(".table-row");
     let visibleCount = 0;
@@ -331,10 +284,8 @@
       const review = row.getAttribute("data-review").toLowerCase();
       const sentiment = row.getAttribute("data-sentiment");
 
-      const matchesSearch =
-        hospital.includes(searchInput) || review.includes(searchInput);
-      const matchesSentiment =
-        sentimentFilter === "" || sentiment === sentimentFilter;
+      const matchesSearch = hospital.includes(searchInput) || review.includes(searchInput);
+      const matchesSentiment = sentimentFilter === "" || sentiment === sentimentFilter;
 
       if (matchesSearch && matchesSentiment) {
         row.style.display = "";
@@ -347,119 +298,118 @@
     document.getElementById("displayCount").textContent = visibleCount;
   }
 
-  // View detail function
+  // View detail function with new design
   function viewDetail(hospital, review, sentiment, confidence, timestamp) {
     const modal = document.getElementById("detailModal");
     const content = document.getElementById("modalContent");
 
-    const sentimentClass =
-      sentiment === "Positif"
-        ? "bg-green-100 text-green-800"
-        : "bg-red-100 text-red-800";
-    const sentimentIcon = sentiment === "Positif" ? "fa-smile" : "fa-frown";
+    // Colors based on sentiment
+    const isPositive = sentiment === 'Positif';
+    const statusColor = isPositive ? 'text-emerald-700 bg-emerald-50 border-emerald-100' : 'text-rose-700 bg-rose-50 border-rose-100';
+    const icon = isPositive ? 'fa-check-circle' : 'fa-exclamation-triangle';
+    const barColor = isPositive ? 'bg-emerald-500' : 'bg-rose-500';
 
     content.innerHTML = `
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-semibold text-gray-600 mb-2">
-                        <i class="fas fa-clock mr-2"></i>Waktu
-                    </label>
-                    <p class="text-gray-800 font-medium">${timestamp}</p>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-semibold text-gray-600 mb-2">
-                        <i class="fas fa-hospital mr-2"></i>Rumah Sakit
-                    </label>
-                    <p class="text-gray-800 font-bold text-lg">${hospital}</p>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-semibold text-gray-600 mb-2">
-                        <i class="fas fa-comment-dots mr-2"></i>Ulasan
-                    </label>
-                    <div class="bg-gray-50 rounded-lg p-4 border-2 border-gray-200">
-                        <p class="text-gray-800 leading-relaxed">${review}</p>
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-600 mb-2">
-                            <i class="fas fa-chart-pie mr-2"></i>Sentimen
-                        </label>
-                        <span class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-bold ${sentimentClass}">
-                            <i class="fas ${sentimentIcon} mr-2"></i>${sentiment}
-                        </span>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-600 mb-2">
-                            <i class="fas fa-percentage mr-2"></i>Confidence
-                        </label>
-                        <div class="flex items-center">
-                            <div class="flex-1 bg-gray-200 rounded-full h-3 mr-3">
-                                <div class="bg-gradient-to-r from-blue-500 to-purple-600 h-3 rounded-full transition-all" style="width: ${confidence}%"></div>
-                            </div>
-                            <span class="text-lg font-bold text-gray-800">${confidence}%</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
+      <div class="space-y-6">
+        <!-- Meta Info -->
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Fasilitas Kesehatan</p>
+            <h4 class="text-xl font-bold text-slate-900">${hospital}</h4>
+          </div>
+          <div class="text-right">
+            <p class="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Waktu Lapor</p>
+            <p class="text-sm font-mono text-slate-600 bg-slate-100 px-2 py-1 rounded">${timestamp}</p>
+          </div>
+        </div>
+
+        <!-- Sentiment Status -->
+        <div class="flex items-center p-4 rounded-lg border ${statusColor}">
+          <i class="fas ${icon} text-2xl mr-4"></i>
+          <div class="flex-1">
+            <p class="text-xs font-bold opacity-80 uppercase">Hasil Analisis AI</p>
+            <p class="text-lg font-bold">${sentiment}</p>
+          </div>
+          <div class="text-right">
+             <p class="text-xs font-bold opacity-80 uppercase">Akurasi</p>
+             <p class="text-lg font-mono font-bold">${confidence}%</p>
+          </div>
+        </div>
+
+        <!-- Review Content -->
+        <div>
+          <p class="text-xs text-slate-500 font-bold uppercase tracking-wider mb-2">Isi Ulasan Lengkap</p>
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-slate-700 leading-relaxed text-sm h-32 overflow-y-auto">
+            "${review}"
+          </div>
+        </div>
+
+        <!-- Confidence Bar -->
+        <div>
+           <div class="flex justify-between text-xs mb-1">
+              <span class="text-slate-500">Tingkat Keyakinan Model</span>
+              <span class="font-bold text-slate-700">${confidence}%</span>
+           </div>
+           <div class="w-full bg-slate-100 rounded-full h-2">
+              <div class="${barColor} h-2 rounded-full transition-all duration-500" style="width: ${confidence}%"></div>
+           </div>
+        </div>
+      </div>
+    `;
 
     modal.classList.remove("hidden");
-    document.body.style.overflow = "hidden";
+    document.body.style.overflow = "hidden"; // Prevent background scrolling
   }
 
-  // Close modal function
   function closeModal(event) {
-    if (!event || event.target === event.currentTarget) {
-      const modal = document.getElementById("detailModal");
-      modal.classList.add("hidden");
-      document.body.style.overflow = "auto";
-    }
+    // If event is passed, check if click target is outside modal content
+    if (event && event.target !== event.currentTarget) return;
+    
+    const modal = document.getElementById("detailModal");
+    modal.classList.add("hidden");
+    document.body.style.overflow = "auto";
   }
 
   // Export to CSV function
   function exportToCSV() {
     const rows = document.querySelectorAll(".table-row");
-    let csv = "Waktu,Rumah Sakit,Ulasan,Sentimen,Confidence\n";
+    let csv = "Timestamp,Nama RS,Ulasan,Sentimen,Akurasi\n";
 
     rows.forEach((row) => {
       if (row.style.display !== "none") {
         const cols = row.querySelectorAll("td");
-        const timestamp = cols[0].textContent.trim();
+        // Adjust index based on table structure
+        const timestamp = cols[0].innerText.trim();
         const hospital = row.getAttribute("data-hospital");
         const review = row.getAttribute("data-review").replace(/"/g, '""');
         const sentiment = row.getAttribute("data-sentiment");
-        const confidence = cols[3].querySelector(".text-xs").textContent.trim();
+        // Extract number from text like "Conf: 95%"
+        const confidence = row.querySelector('.font-mono').innerText.replace(/[^0-9]/g, '');
 
-        csv += `"${timestamp}","${hospital}","${review}","${sentiment}","${confidence}"\n`;
+        csv += `"${timestamp}","${hospital}","${review}","${sentiment}","${confidence}%"\n`;
       }
     });
 
-    const blob = new Blob([csv], { type: "text/csv" });
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "hospital-check-history.csv";
+    a.download = "data-laporan-rs_" + new Date().toISOString().split('T')[0] + ".csv";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
   }
 
-  // Line clamp CSS
+  // CSS for Line Clamp included in Tailwind, but fallback just in case
   const style = document.createElement("style");
   style.textContent = `
-        .line-clamp-2 {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-    `;
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  `;
   document.head.appendChild(style);
 </script>
 
