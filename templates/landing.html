@@ -113,12 +113,13 @@
     <div
       class="grid grid-cols-1 md:grid-cols-3 gap-8 divide-y md:divide-y-0 md:divide-x divide-slate-100"
     >
-      <!-- Stat 1 -->
+      <!-- Stat 1: Total Laporan -->
       <div class="text-center p-4" data-aos="fade-up" data-aos-delay="0">
         <div
           class="text-4xl lg:text-5xl font-black text-brand-600 mb-2 font-mono"
         >
-          1,234+
+          <!-- GANTI DI SINI -->
+          {{ total_reports }}
         </div>
         <div
           class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1"
@@ -128,12 +129,13 @@
         <p class="text-slate-500 text-sm">Data ulasan terverifikasi</p>
       </div>
 
-      <!-- Stat 2 -->
+      <!-- Stat 2: Jumlah RS -->
       <div class="text-center p-4" data-aos="fade-up" data-aos-delay="100">
         <div
           class="text-4xl lg:text-5xl font-black text-brand-600 mb-2 font-mono"
         >
-          45+
+          <!-- GANTI DI SINI -->
+          {{ total_hospitals }}
         </div>
         <div
           class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1"
@@ -143,12 +145,13 @@
         <p class="text-slate-500 text-sm">Terdaftar dalam sistem</p>
       </div>
 
-      <!-- Stat 3 -->
+      <!-- Stat 3: Akurasi AI -->
       <div class="text-center p-4" data-aos="fade-up" data-aos-delay="200">
         <div
           class="text-4xl lg:text-5xl font-black text-accent-500 mb-2 font-mono"
         >
-          98%
+          <!-- GANTI DI SINI -->
+          {{ accuracy }}%
         </div>
         <div
           class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1"
@@ -311,20 +314,31 @@
           class="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/10 shadow-2xl"
         >
           <div class="grid grid-cols-2 gap-6">
+            <!-- Kartu Laporan Positif -->
             <div
               class="bg-brand-800/50 rounded-xl p-5 border border-brand-700/50"
             >
               <i class="fas fa-file-medical text-3xl text-brand-300 mb-3"></i>
-              <div class="text-2xl font-bold text-white">560+</div>
+              <div class="text-2xl font-bold text-white">
+                <!-- GANTI DI SINI -->
+                {{ positive_reports }}+
+              </div>
               <div class="text-xs text-brand-200">Laporan Positif</div>
             </div>
+
+            <!-- Kartu Akurasi AI -->
             <div
               class="bg-brand-800/50 rounded-xl p-5 border border-brand-700/50"
             >
               <i class="fas fa-robot text-3xl text-brand-300 mb-3"></i>
-              <div class="text-2xl font-bold text-white">98%</div>
+              <div class="text-2xl font-bold text-white">
+                <!-- GANTI DI SINI -->
+                {{ accuracy }}%
+              </div>
               <div class="text-xs text-brand-200">Akurasi AI</div>
             </div>
+
+            <!-- Kartu SSL (Tetap Statis karena ini fitur teknis) -->
             <div
               class="bg-brand-800/50 rounded-xl p-5 border border-brand-700/50"
             >
@@ -332,11 +346,16 @@
               <div class="text-2xl font-bold text-white">SSL</div>
               <div class="text-xs text-brand-200">Keamanan Data</div>
             </div>
+
+            <!-- Kartu Partisipan -->
             <div
               class="bg-brand-800/50 rounded-xl p-5 border border-brand-700/50"
             >
               <i class="fas fa-users text-3xl text-brand-300 mb-3"></i>
-              <div class="text-2xl font-bold text-white">2.5K</div>
+              <div class="text-2xl font-bold text-white">
+                <!-- GANTI DI SINI -->
+                {{ participants }}
+              </div>
               <div class="text-xs text-brand-200">Partisipan</div>
             </div>
           </div>

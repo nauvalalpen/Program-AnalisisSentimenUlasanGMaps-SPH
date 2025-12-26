@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 import pytz # Library Timezone
 from fpdf import FPDF # Library PDF
 from flask import jsonify
+from sqlalchemy import func
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///hospital_reviews.db'
@@ -32,7 +33,34 @@ with app.app_context():
 
 @app.route('/')
 def landing_page():
-    return render_template('landing.html')
+    # 1. Hitung Total Laporan Masuk
+    total_reports = ReviewLog.query.count()
+    
+    # 2. Hitung Jumlah Rumah Sakit yang Terdaftar (Dari inputan user di DB)
+    # Menggunakan distinct untuk menghitung nama RS unik
+    total_hospitals = db.session.query(func.count(func.distinct(ReviewLog.hospital_name))).scalar()
+    
+    # Fallback jika DB kosong, ambil dari list Excel
+    if total_hospitals == 0 and ai_brain.hospital_list:
+        total_hospitals = len(ai_brain.hospital_list)
+
+    # 3. Ambil Akurasi Model AI
+    accuracy = ai_brain.metrics.get('accuracy', 0)
+    
+    # 4. Hitung Laporan Positif (Untuk Card di bawah)
+    positive_reports = ReviewLog.query.filter_by(sentiment='Positif').count()
+    
+    # 5. Jumlah Partisipan (Kita asumsikan 1 laporan = 1 partisipan unik untuk simplifikasi, 
+    # atau bisa hitung total reports saja)
+    participants = total_reports 
+
+    # Kirim data ke template
+    return render_template('landing.html', 
+                           total_reports=total_reports,
+                           total_hospitals=total_hospitals,
+                           accuracy=accuracy,
+                           positive_reports=positive_reports,
+                           participants=participants)
 
 @app.route('/lapor', methods=['GET', 'POST'])
 def input_page():
