@@ -1,111 +1,420 @@
 {% extends "base.html" %} {% block content %}
-<!-- HERO SECTION -->
-<div
-  class="p-5 mb-5 bg-white rounded-3 shadow-sm border text-center"
-  style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)"
+
+<!-- Hero Section -->
+<section class="relative overflow-hidden py-20 lg:py-32">
+  <div
+    class="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 opacity-10"
+  ></div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+    <div class="text-center" data-aos="fade-up">
+      <!-- Badge -->
+      <div
+        class="inline-flex items-center space-x-2 bg-white/90 backdrop-blur-sm rounded-full px-6 py-2 shadow-lg mb-8"
+      >
+        <span class="relative flex h-3 w-3">
+          <span
+            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"
+          ></span>
+          <span
+            class="relative inline-flex rounded-full h-3 w-3 bg-green-500"
+          ></span>
+        </span>
+        <span class="text-sm font-semibold text-gray-800"
+          >Sistem Aktif & Real-time</span
+        >
+      </div>
+
+      <!-- Main Heading -->
+      <h1 class="text-5xl md:text-7xl font-black mb-6 leading-tight">
+        <span class="gradient-text">Suara Pasien,</span><br />
+        <span class="text-gray-800">Kualitas Masa Depan</span>
+      </h1>
+
+      <!-- Subtitle -->
+      <p
+        class="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed"
+      >
+        Platform pemantauan kualitas pelayanan rumah sakit berbasis
+        <span
+          class="font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600"
+          >Artificial Intelligence</span
+        >. <br />Transparan • Real-time • Objektif
+      </p>
+
+      <!-- CTA Buttons -->
+      <div
+        class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12"
+        data-aos="fade-up"
+        data-aos-delay="100"
+      >
+        <a
+          href="{{ url_for('input_page') }}"
+          class="group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-lg shadow-2xl hover:shadow-purple-500/50 transform hover:-translate-y-1 transition-all duration-300 overflow-hidden w-full sm:w-auto"
+        >
+          <span
+            class="relative z-10 flex items-center justify-center space-x-2"
+          >
+            <i class="fas fa-bullhorn"></i>
+            <span>Mulai Lapor Sekarang</span>
+            <i
+              class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"
+            ></i>
+          </span>
+          <div
+            class="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity"
+          ></div>
+        </a>
+
+        <a
+          href="{{ url_for('dashboard_page') }}"
+          class="px-8 py-4 bg-white text-gray-800 rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 border-2 border-gray-200 hover:border-blue-400 w-full sm:w-auto"
+        >
+          <span class="flex items-center justify-center space-x-2">
+            <i class="fas fa-chart-line text-blue-600"></i>
+            <span>Lihat Statistik</span>
+          </span>
+        </a>
+      </div>
+
+      <!-- Trust Indicators -->
+      <div
+        class="flex flex-wrap justify-center gap-8 text-gray-600"
+        data-aos="fade-up"
+        data-aos-delay="200"
+      >
+        <div class="flex items-center space-x-2">
+          <i class="fas fa-check-circle text-green-500"></i>
+          <span class="text-sm font-medium">100% Gratis</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <i class="fas fa-shield-alt text-blue-500"></i>
+          <span class="text-sm font-medium">Data Terenkripsi</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <i class="fas fa-lock text-purple-500"></i>
+          <span class="text-sm font-medium">Privasi Terjamin</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats Section -->
+<section class="py-16 bg-white/50 backdrop-blur-sm">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- Stat 1 -->
+      <div class="text-center" data-aos="fade-up" data-aos-delay="0">
+        <div
+          class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg mb-4 animate-bounce-slow"
+        >
+          <i class="fas fa-comments text-3xl text-white"></i>
+        </div>
+        <h3 class="text-5xl font-black text-gray-800 mb-2">1,234+</h3>
+        <p class="text-gray-600 font-medium">Total Laporan Masuk</p>
+      </div>
+
+      <!-- Stat 2 -->
+      <div class="text-center" data-aos="fade-up" data-aos-delay="100">
+        <div
+          class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-lg mb-4 animate-bounce-slow"
+          style="animation-delay: 0.5s"
+        >
+          <i class="fas fa-hospital text-3xl text-white"></i>
+        </div>
+        <h3 class="text-5xl font-black text-gray-800 mb-2">45+</h3>
+        <p class="text-gray-600 font-medium">Rumah Sakit Terdaftar</p>
+      </div>
+
+      <!-- Stat 3 -->
+      <div class="text-center" data-aos="fade-up" data-aos-delay="200">
+        <div
+          class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-pink-500 to-pink-600 rounded-2xl shadow-lg mb-4 animate-bounce-slow"
+          style="animation-delay: 1s"
+        >
+          <i class="fas fa-smile text-3xl text-white"></i>
+        </div>
+        <h3 class="text-5xl font-black text-gray-800 mb-2">89%</h3>
+        <p class="text-gray-600 font-medium">Tingkat Kepuasan</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-20">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Section Header -->
+    <div class="text-center mb-16" data-aos="fade-up">
+      <h2 class="text-4xl md:text-5xl font-black text-gray-800 mb-4">
+        Mengapa Memilih <span class="gradient-text">Hospital-Check?</span>
+      </h2>
+      <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+        Kami menggunakan teknologi terdepan untuk memberikan transparansi
+        maksimal
+      </p>
+    </div>
+
+    <!-- Features Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- Feature 1 -->
+      <div
+        class="group relative bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2"
+        data-aos="fade-up"
+        data-aos-delay="0"
+      >
+        <div
+          class="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity"
+        ></div>
+
+        <div class="relative">
+          <div
+            class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"
+          >
+            <i class="fas fa-robot text-2xl text-white"></i>
+          </div>
+
+          <h3 class="text-2xl font-bold text-gray-800 mb-4">
+            Analisis AI Cerdas
+          </h3>
+
+          <p class="text-gray-600 mb-4 leading-relaxed">
+            Menggunakan algoritma
+            <span class="font-semibold text-blue-600"
+              >Machine Learning (Naive Bayes)</span
+            >
+            untuk mendeteksi sentimen ulasan secara otomatis dengan akurasi
+            tinggi.
+          </p>
+
+          <div class="flex items-center space-x-2 text-blue-600 font-semibold">
+            <span>Akurasi Tinggi</span>
+            <i
+              class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"
+            ></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature 2 -->
+      <div
+        class="group relative bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2"
+        data-aos="fade-up"
+        data-aos-delay="100"
+      >
+        <div
+          class="absolute inset-0 bg-gradient-to-br from-green-500 to-teal-600 rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity"
+        ></div>
+
+        <div class="relative">
+          <div
+            class="w-16 h-16 bg-gradient-to-br from-green-500 to-teal-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"
+          >
+            <i class="fas fa-chart-pie text-2xl text-white"></i>
+          </div>
+
+          <h3 class="text-2xl font-bold text-gray-800 mb-4">
+            Monitoring Real-Time
+          </h3>
+
+          <p class="text-gray-600 mb-4 leading-relaxed">
+            Pantau reputasi rumah sakit secara langsung melalui
+            <span class="font-semibold text-green-600"
+              >Dashboard interaktif</span
+            >. Data diperbarui setiap kali ada laporan masuk.
+          </p>
+
+          <div class="flex items-center space-x-2 text-green-600 font-semibold">
+            <span>Update Otomatis</span>
+            <i
+              class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"
+            ></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature 3 -->
+      <div
+        class="group relative bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2"
+        data-aos="fade-up"
+        data-aos-delay="200"
+      >
+        <div
+          class="absolute inset-0 bg-gradient-to-br from-pink-500 to-red-600 rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity"
+        ></div>
+
+        <div class="relative">
+          <div
+            class="w-16 h-16 bg-gradient-to-br from-pink-500 to-red-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"
+          >
+            <i class="fas fa-search-plus text-2xl text-white"></i>
+          </div>
+
+          <h3 class="text-2xl font-bold text-gray-800 mb-4">
+            Diagnostik Mendalam
+          </h3>
+
+          <p class="text-gray-600 mb-4 leading-relaxed">
+            Membandingkan data historis dengan tren saat ini untuk mengetahui
+            apakah kualitas pelayanan
+            <span class="font-semibold text-pink-600"
+              >meningkat atau menurun</span
+            >.
+          </p>
+
+          <div class="flex items-center space-x-2 text-pink-600 font-semibold">
+            <span>Analisis Tren</span>
+            <i
+              class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"
+            ></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Transparency Section -->
+<section
+  class="py-20 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 relative overflow-hidden"
 >
-  <div class="container-fluid py-5">
-    <h1 class="display-4 fw-bold text-primary mb-3">
-      Suara Pasien, Kualitas Masa Depan
-    </h1>
-    <p class="col-md-8 fs-4 mx-auto text-muted mb-5">
-      Platform pemantauan kualitas pelayanan rumah sakit berbasis
-      <span class="fw-bold text-dark">Artificial Intelligence</span>.
-      Transparan, Real-time, dan Objektif.
-    </p>
-
-    <!-- Action Buttons -->
-    <div class="d-flex justify-content-center gap-3 flex-wrap">
-      <a
-        href="{{ url_for('input_page') }}"
-        class="btn btn-primary btn-lg px-4 gap-3 shadow-sm"
-      >
-        <i class="fas fa-bullhorn me-2"></i>Mulai Lapor
-      </a>
-      <a
-        href="{{ url_for('dashboard_page') }}"
-        class="btn btn-outline-dark btn-lg px-4 shadow-sm"
-      >
-        <i class="fas fa-chart-line me-2"></i>Lihat Statistik
-      </a>
-      <a
-        href="{{ url_for('developer_page') }}"
-        class="btn btn-dark btn-lg px-4 shadow-sm"
-      >
-        <i class="fas fa-code me-2"></i>Dev Tools
-      </a>
-    </div>
+  <div class="absolute inset-0 opacity-10">
+    <div
+      class="absolute inset-0"
+      style="
+        background-image: url('data:image/svg+xml,%3Csvg width=&quot;60&quot; height=&quot;60&quot; viewBox=&quot;0 0 60 60&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Cg fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;%3E%3Cg fill=&quot;%23ffffff&quot; fill-opacity=&quot;0.4&quot;%3E%3Cpath d=&quot;M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z&quot;/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
+      "
+    ></div>
   </div>
-</div>
 
-<!-- FEATURES SECTION -->
-<div class="row g-4 py-3 row-cols-1 row-cols-lg-3">
-  <!-- Fitur 1 -->
-  <div class="col">
-    <div class="card h-100 border-0 shadow-sm hover-effect text-center p-4">
-      <div class="text-primary mb-3">
-        <i class="fas fa-robot fa-3x"></i>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <!-- Content -->
+      <div class="text-white" data-aos="fade-right">
+        <h2 class="text-4xl md:text-5xl font-black mb-6 leading-tight">
+          Transparansi Data<br />untuk Publik
+        </h2>
+
+        <p class="text-xl mb-8 text-white/90 leading-relaxed">
+          Kami menyimpan riwayat laporan secara transparan. Anda dapat melihat
+          jejak digital pelayanan rumah sakit di kota Anda kapan saja.
+        </p>
+
+        <ul class="space-y-4 mb-8">
+          <li class="flex items-start space-x-3">
+            <i class="fas fa-check-circle text-2xl text-green-300 mt-1"></i>
+            <span class="text-lg">Data tersimpan secara permanen dan aman</span>
+          </li>
+          <li class="flex items-start space-x-3">
+            <i class="fas fa-check-circle text-2xl text-green-300 mt-1"></i>
+            <span class="text-lg">Dapat diakses kapan saja, dimana saja</span>
+          </li>
+          <li class="flex items-start space-x-3">
+            <i class="fas fa-check-circle text-2xl text-green-300 mt-1"></i>
+            <span class="text-lg"
+              >Membantu meningkatkan kualitas layanan RS</span
+            >
+          </li>
+        </ul>
+
+        <a
+          href="{{ url_for('history_page') }}"
+          class="inline-flex items-center space-x-3 bg-white text-purple-600 px-8 py-4 rounded-xl font-bold text-lg shadow-2xl hover:shadow-white/30 transform hover:-translate-y-1 transition-all"
+        >
+          <i class="fas fa-folder-open"></i>
+          <span>Buka Riwayat Data</span>
+          <i class="fas fa-arrow-right"></i>
+        </a>
       </div>
-      <h3 class="fw-bold">Analisis AI Cerdas</h3>
-      <p class="text-muted">
-        Menggunakan algoritma <i>Machine Learning (Naive Bayes)</i> untuk
-        mendeteksi sentimen ulasan secara otomatis dengan akurasi tinggi.
-      </p>
-    </div>
-  </div>
 
-  <!-- Fitur 2 -->
-  <div class="col">
-    <div class="card h-100 border-0 shadow-sm hover-effect text-center p-4">
-      <div class="text-success mb-3">
-        <i class="fas fa-chart-pie fa-3x"></i>
+      <!-- Visual -->
+      <div class="relative" data-aos="fade-left">
+        <div
+          class="relative z-10 bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl"
+        >
+          <div class="grid grid-cols-2 gap-4">
+            <div
+              class="bg-white/20 backdrop-blur-sm rounded-xl p-6 border border-white/30"
+            >
+              <i class="fas fa-file-medical text-4xl text-white mb-3"></i>
+              <div class="text-3xl font-bold text-white mb-1">560+</div>
+              <div class="text-sm text-white/80">Laporan Positif</div>
+            </div>
+            <div
+              class="bg-white/20 backdrop-blur-sm rounded-xl p-6 border border-white/30"
+            >
+              <i class="fas fa-chart-line text-4xl text-white mb-3"></i>
+              <div class="text-3xl font-bold text-white mb-1">98%</div>
+              <div class="text-sm text-white/80">Akurasi Analisis</div>
+            </div>
+            <div
+              class="bg-white/20 backdrop-blur-sm rounded-xl p-6 border border-white/30"
+            >
+              <i class="fas fa-shield-alt text-4xl text-white mb-3"></i>
+              <div class="text-3xl font-bold text-white mb-1">100%</div>
+              <div class="text-sm text-white/80">Data Terenkripsi</div>
+            </div>
+            <div
+              class="bg-white/20 backdrop-blur-sm rounded-xl p-6 border border-white/30"
+            >
+              <i class="fas fa-users text-4xl text-white mb-3"></i>
+              <div class="text-3xl font-bold text-white mb-1">2.5K+</div>
+              <div class="text-sm text-white/80">Pengguna Aktif</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating Elements -->
+        <div
+          class="absolute -top-8 -right-8 w-32 h-32 bg-yellow-300 rounded-full opacity-20 blur-3xl animate-float"
+        ></div>
+        <div
+          class="absolute -bottom-8 -left-8 w-40 h-40 bg-pink-300 rounded-full opacity-20 blur-3xl animate-float"
+          style="animation-delay: 1s"
+        ></div>
       </div>
-      <h3 class="fw-bold">Monitoring Real-Time</h3>
-      <p class="text-muted">
-        Pantau reputasi rumah sakit secara langsung melalui Dashboard
-        interaktif. Data diperbarui setiap kali ada laporan masuk.
-      </p>
     </div>
   </div>
+</section>
 
-  <!-- Fitur 3 -->
-  <div class="col">
-    <div class="card h-100 border-0 shadow-sm hover-effect text-center p-4">
-      <div class="text-warning mb-3">
-        <i class="fas fa-search-plus fa-3x"></i>
+<!-- CTA Section -->
+<section class="py-20">
+  <div
+    class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
+    data-aos="zoom-in"
+  >
+    <div
+      class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-12 shadow-2xl relative overflow-hidden"
+    >
+      <div class="absolute inset-0 opacity-10">
+        <div
+          class="absolute inset-0"
+          style="
+            background-image: url('data:image/svg+xml,%3Csvg width=&quot;100&quot; height=&quot;100&quot; viewBox=&quot;0 0 100 100&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Cpath d=&quot;M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z&quot; fill=&quot;%23ffffff&quot; fill-opacity=&quot;0.4&quot; fill-rule=&quot;evenodd&quot;/%3E%3C/svg%3E');
+          "
+        ></div>
       </div>
-      <h3 class="fw-bold">Diagnostik Mendalam</h3>
-      <p class="text-muted">
-        Membandingkan data historis dengan tren saat ini untuk mengetahui apakah
-        kualitas pelayanan RS meningkat atau menurun.
-      </p>
-    </div>
-  </div>
-</div>
 
-<!-- DATA TRANSITION SECTION -->
-<div class="row align-items-center my-5 py-5">
-  <div class="col-lg-6">
-    <h2 class="fw-bold lh-1 mb-3">Transparansi Data untuk Publik</h2>
-    <p class="lead text-muted">
-      Kami menyimpan riwayat laporan secara transparan. Anda dapat melihat jejak
-      digital pelayanan rumah sakit di kota Anda kapan saja.
-    </p>
-    <div class="d-grid gap-2 d-md-flex justify-content-md-start">
-      <a
-        href="{{ url_for('history_page') }}"
-        class="btn btn-outline-secondary btn-lg px-4 me-md-2"
-        >Buka Riwayat Data</a
-      >
+      <div class="relative z-10">
+        <i class="fas fa-rocket text-6xl text-blue-400 mb-6"></i>
+        <h2 class="text-4xl font-black text-white mb-4">
+          Siap Membuat Perubahan?
+        </h2>
+        <p class="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+          Bergabunglah dengan ribuan pengguna lain yang telah mempercayai
+          Hospital-Check untuk meningkatkan kualitas layanan kesehatan
+        </p>
+        <a
+          href="{{ url_for('input_page') }}"
+          class="inline-flex items-center space-x-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-10 py-5 rounded-xl font-bold text-lg shadow-2xl hover:shadow-blue-500/50 transform hover:-translate-y-1 transition-all"
+        >
+          <span>Mulai Sekarang</span>
+          <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
     </div>
   </div>
-  <div class="col-lg-6 text-center">
-    <!-- Ilustrasi Sederhana menggunakan Icon -->
-    <i
-      class="fas fa-file-medical-alt text-primary opacity-25"
-      style="font-size: 15rem"
-    ></i>
-  </div>
-</div>
+</section>
 
 {% endblock %}

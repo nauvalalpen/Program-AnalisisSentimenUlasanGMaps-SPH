@@ -5,105 +5,373 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hospital-Check | Suara Pasien</title>
 
-    <!-- Bootstrap 5 CSS -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <!-- Font Awesome untuk Ikon -->
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
     <link
       rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-    />
-    <!-- Custom CSS -->
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='style.css') }}"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     />
 
+    <!-- AOS Animation -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+            },
+            colors: {
+              primary: {
+                50: "#eff6ff",
+                100: "#dbeafe",
+                200: "#bfdbfe",
+                300: "#93c5fd",
+                400: "#60a5fa",
+                500: "#3b82f6",
+                600: "#2563eb",
+                700: "#1d4ed8",
+                800: "#1e40af",
+                900: "#1e3a8a",
+              },
+            },
+            animation: {
+              gradient: "gradient 8s linear infinite",
+              float: "float 6s ease-in-out infinite",
+              "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+              "bounce-slow": "bounce 3s infinite",
+            },
+            keyframes: {
+              gradient: {
+                "0%, 100%": {
+                  "background-size": "200% 200%",
+                  "background-position": "left center",
+                },
+                "50%": {
+                  "background-size": "200% 200%",
+                  "background-position": "right center",
+                },
+              },
+              float: {
+                "0%, 100%": { transform: "translateY(0px)" },
+                "50%": { transform: "translateY(-20px)" },
+              },
+            },
+          },
+        },
+      };
+    </script>
+
     <style>
-      body {
-        background-color: #f4f6f9;
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      @keyframes heartbeat {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        25% {
+          transform: scale(1.1);
+        }
+        50% {
+          transform: scale(1);
+        }
       }
-      .navbar-brand {
-        font-weight: bold;
-        color: #0d6efd !important;
+
+      .heartbeat {
+        animation: heartbeat 1.5s ease-in-out infinite;
       }
-      .card {
-        border: none;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        border-radius: 12px;
+
+      .gradient-text {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .glass {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .nav-link-custom {
+        position: relative;
+      }
+
+      .nav-link-custom::after {
+        content: "";
+        position: absolute;
+        bottom: -2px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        transition: width 0.3s ease;
+      }
+
+      .nav-link-custom:hover::after {
+        width: 100%;
       }
     </style>
   </head>
-  <body>
-    <!-- Navbar -->
+  <body
+    class="bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 min-h-screen"
+  >
+    <!-- Navigation -->
     <nav
-      class="navbar navbar-expand-lg navbar-light bg-white py-3 shadow-sm sticky-top"
+      id="navbar"
+      class="fixed w-full top-0 z-50 transition-all duration-300 bg-white/80 backdrop-blur-md shadow-lg"
     >
-      <div class="container">
-        <!-- LOGO MENGARAH KE LANDING PAGE -->
-        <a class="navbar-brand" href="{{ url_for('landing_page') }}">
-          <i class="fas fa-heartbeat text-danger me-2"></i>Hospital-Check
-        </a>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-20">
+          <!-- Logo -->
+          <a
+            href="{{ url_for('landing_page') }}"
+            class="flex items-center space-x-3 group"
+          >
+            <div class="relative">
+              <i class="fas fa-heartbeat text-4xl text-red-500 heartbeat"></i>
+              <div
+                class="absolute inset-0 bg-red-500 opacity-20 blur-xl group-hover:opacity-40 transition-opacity"
+              ></div>
+            </div>
+            <span class="text-2xl font-bold gradient-text">Hospital-Check</span>
+          </a>
 
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-auto">
-            <!-- MENU LAPOR MENGARAH KE /lapor -->
-            <li class="nav-item">
-              <a class="nav-link fw-semibold" href="{{ url_for('input_page') }}"
-                >Lapor</a
-              >
-            </li>
-            <li class="nav-item">
+          <!-- Desktop Menu -->
+          <div class="hidden md:flex items-center space-x-1">
+            <a
+              href="{{ url_for('input_page') }}"
+              class="nav-link-custom px-4 py-2 text-gray-700 hover:text-blue-600 font-medium transition-colors flex items-center space-x-2"
+            >
+              <i class="fas fa-bullhorn"></i>
+              <span>Lapor</span>
+            </a>
+            <a
+              href="{{ url_for('dashboard_page') }}"
+              class="nav-link-custom px-4 py-2 text-gray-700 hover:text-blue-600 font-medium transition-colors flex items-center space-x-2"
+            >
+              <i class="fas fa-chart-line"></i>
+              <span>Dashboard</span>
+            </a>
+            <a
+              href="{{ url_for('history_page') }}"
+              class="nav-link-custom px-4 py-2 text-gray-700 hover:text-blue-600 font-medium transition-colors flex items-center space-x-2"
+            >
+              <i class="fas fa-history"></i>
+              <span>Riwayat</span>
+            </a>
+            <div class="ml-4 pl-4 border-l-2 border-gray-300">
               <a
-                class="nav-link fw-semibold"
-                href="{{ url_for('dashboard_page') }}"
-                >Dashboard</a
-              >
-            </li>
-            <li class="nav-item">
-              <a
-                class="nav-link fw-semibold"
-                href="{{ url_for('history_page') }}"
-                >Riwayat</a
-              >
-            </li>
-            <li class="nav-item border-start ms-2 ps-2">
-              <a
-                class="nav-link fw-bold text-dark"
                 href="{{ url_for('developer_page') }}"
+                class="px-4 py-2 bg-gradient-to-r from-gray-800 to-gray-900 text-white rounded-lg hover:shadow-lg transform hover:-translate-y-0.5 transition-all flex items-center space-x-2 font-semibold"
               >
-                <i class="fas fa-code"></i> Dev Tools
+                <i class="fas fa-code"></i>
+                <span>Dev Tools</span>
               </a>
-            </li>
-          </ul>
+            </div>
+          </div>
+
+          <!-- Mobile Menu Button -->
+          <button
+            id="mobile-menu-btn"
+            class="md:hidden text-gray-700 hover:text-blue-600 focus:outline-none"
+          >
+            <i class="fas fa-bars text-2xl"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Menu -->
+      <div
+        id="mobile-menu"
+        class="hidden md:hidden bg-white/95 backdrop-blur-md border-t border-gray-200"
+      >
+        <div class="px-4 py-4 space-y-2">
+          <a
+            href="{{ url_for('input_page') }}"
+            class="block px-4 py-3 text-gray-700 hover:bg-blue-50 rounded-lg transition-colors"
+          >
+            <i class="fas fa-bullhorn mr-3"></i>Lapor
+          </a>
+          <a
+            href="{{ url_for('dashboard_page') }}"
+            class="block px-4 py-3 text-gray-700 hover:bg-blue-50 rounded-lg transition-colors"
+          >
+            <i class="fas fa-chart-line mr-3"></i>Dashboard
+          </a>
+          <a
+            href="{{ url_for('history_page') }}"
+            class="block px-4 py-3 text-gray-700 hover:bg-blue-50 rounded-lg transition-colors"
+          >
+            <i class="fas fa-history mr-3"></i>Riwayat
+          </a>
+          <a
+            href="{{ url_for('developer_page') }}"
+            class="block px-4 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors"
+          >
+            <i class="fas fa-code mr-3"></i>Dev Tools
+          </a>
         </div>
       </div>
     </nav>
 
-    <!-- Konten Halaman Berubah-ubah di sini -->
-    <div class="container my-5">{% block content %}{% endblock %}</div>
+    <!-- Main Content -->
+    <main class="pt-20">{% block content %}{% endblock %}</main>
 
     <!-- Footer -->
-    <footer class="text-center py-4 text-muted">
-      <small
-        >&copy; 2025 Project Analisis Sentimen Rumah Sakit - Mahasiswa
-        TRPL</small
-      >
+    <footer
+      class="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white mt-20"
+    >
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <!-- Brand -->
+          <div class="col-span-1 md:col-span-2">
+            <div class="flex items-center space-x-3 mb-4">
+              <i class="fas fa-heartbeat text-3xl text-red-500 heartbeat"></i>
+              <span class="text-2xl font-bold">Hospital-Check</span>
+            </div>
+            <p class="text-gray-400 mb-4">
+              Platform pemantauan kualitas pelayanan rumah sakit berbasis AI.
+              Transparan, Real-time, dan Objektif.
+            </p>
+            <div class="flex space-x-4">
+              <a
+                href="#"
+                class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors"
+              >
+                <i class="fab fa-facebook-f"></i>
+              </a>
+              <a
+                href="#"
+                class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-blue-400 transition-colors"
+              >
+                <i class="fab fa-twitter"></i>
+              </a>
+              <a
+                href="#"
+                class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-pink-600 transition-colors"
+              >
+                <i class="fab fa-instagram"></i>
+              </a>
+            </div>
+          </div>
+
+          <!-- Quick Links -->
+          <div>
+            <h3 class="text-lg font-semibold mb-4">Menu Cepat</h3>
+            <ul class="space-y-2">
+              <li>
+                <a
+                  href="{{ url_for('input_page') }}"
+                  class="text-gray-400 hover:text-white transition-colors"
+                  >Lapor</a
+                >
+              </li>
+              <li>
+                <a
+                  href="{{ url_for('dashboard_page') }}"
+                  class="text-gray-400 hover:text-white transition-colors"
+                  >Dashboard</a
+                >
+              </li>
+              <li>
+                <a
+                  href="{{ url_for('history_page') }}"
+                  class="text-gray-400 hover:text-white transition-colors"
+                  >Riwayat</a
+                >
+              </li>
+            </ul>
+          </div>
+
+          <!-- Support -->
+          <div>
+            <h3 class="text-lg font-semibold mb-4">Dukungan</h3>
+            <ul class="space-y-2">
+              <li>
+                <a
+                  href="#"
+                  class="text-gray-400 hover:text-white transition-colors"
+                  >Tentang Kami</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#"
+                  class="text-gray-400 hover:text-white transition-colors"
+                  >FAQ</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#"
+                  class="text-gray-400 hover:text-white transition-colors"
+                  >Kontak</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div
+          class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400"
+        >
+          <p class="flex items-center justify-center space-x-2 mb-2">
+            <i class="fas fa-shield-alt text-green-500"></i>
+            <span>Data Anda aman dan terenkripsi</span>
+          </p>
+          <p class="text-sm">
+            &copy; 2025 Project Analisis Sentimen Rumah Sakit - Mahasiswa TRPL.
+            All rights reserved.
+          </p>
+        </div>
+      </div>
     </footer>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- AOS Animation -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+      AOS.init({
+        duration: 800,
+        once: true,
+        offset: 100,
+      });
+
+      // Mobile menu toggle
+      const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+      const mobileMenu = document.getElementById("mobile-menu");
+
+      mobileMenuBtn.addEventListener("click", () => {
+        mobileMenu.classList.toggle("hidden");
+      });
+
+      // Navbar scroll effect
+      let lastScroll = 0;
+      const navbar = document.getElementById("navbar");
+
+      window.addEventListener("scroll", () => {
+        const currentScroll = window.pageYOffset;
+
+        if (currentScroll > 100) {
+          navbar.classList.add("shadow-2xl");
+        } else {
+          navbar.classList.remove("shadow-2xl");
+        }
+
+        lastScroll = currentScroll;
+      });
+    </script>
   </body>
 </html>
