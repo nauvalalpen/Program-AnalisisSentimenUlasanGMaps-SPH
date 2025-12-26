@@ -1,39 +1,62 @@
 {% extends "base.html" %} {% block content %}
 
-<section class="py-8 lg:py-12 bg-slate-50 min-h-screen">
+<!-- Custom Color Palette Injection for this page -->
+<style>
+  /* Premium Color Palette inspired by modern dashboards */
+  :root {
+    --primary-bg: #f8fafc;
+    --card-bg: #ffffff;
+    --text-main: #1e293b;
+    --text-sub: #64748b;
+    --accent-success: #10b981; /* Emerald 500 */
+    --accent-warning: #f59e0b; /* Amber 500 */
+    --accent-danger: #ef4444; /* Red 500 */
+    --brand-blue: #2563eb; /* Blue 600 */
+  }
+</style>
+
+<section
+  class="py-8 lg:py-12 min-h-screen"
+  style="background-color: var(--primary-bg)"
+>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <!-- Header & Controls -->
+    <!-- Header Section -->
     <div
-      class="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 mb-10"
-      data-aos="fade-up"
+      class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12"
+      data-aos="fade-down"
     >
-      <!-- Title -->
       <div>
-        <h1 class="text-3xl font-black text-slate-900 tracking-tight mb-2">
-          Dashboard Monitoring
+        <h1
+          class="text-3xl lg:text-4xl font-extrabold tracking-tight mb-2"
+          style="color: var(--text-main)"
+        >
+          Live Monitoring Dashboard
         </h1>
-        <div class="flex items-center space-x-2 text-slate-500">
-          <span class="relative flex h-2.5 w-2.5">
+        <div class="flex items-center gap-3">
+          <span class="relative flex h-3 w-3">
             <span
-              class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"
+              class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"
             ></span>
             <span
-              class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"
+              class="relative inline-flex rounded-full h-3 w-3 bg-green-500"
             ></span>
           </span>
-          <p class="text-sm font-medium">Sistem Live & Real-time</p>
+          <p class="text-sm font-medium text-slate-500">
+            Real-time Data Updates •
+            <span class="font-mono text-slate-400">SYNC: LIVE</span>
+          </p>
         </div>
       </div>
 
-      <!-- Time Filter (Segmented Control Style) -->
+      <!-- Time Filter Pills -->
       <div
-        class="bg-white p-1.5 rounded-xl border border-slate-200 shadow-sm inline-flex"
+        class="bg-white p-1.5 rounded-full shadow-sm border border-slate-200 flex overflow-x-auto max-w-full"
       >
-        {% set periods = [('day', 'Hari Ini'), ('week', 'Minggu Ini'), ('month',
-        'Bulan Ini'), ('all', 'Semua Data')] %} {% for key, label in periods %}
+        {% set periods = [('day', '24H'), ('week', '7 Days'), ('month', '30
+        Days'), ('all', 'All Time')] %} {% for key, label in periods %}
         <a
           href="?timeframe={{ key }}"
-          class="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 {% if timeframe == key %} bg-brand-600 text-white shadow-md {% else %} text-slate-500 hover:text-slate-900 hover:bg-slate-50 {% endif %}"
+          class="px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 whitespace-nowrap {% if timeframe == key %} bg-slate-900 text-white shadow-md {% else %} text-slate-500 hover:text-slate-900 hover:bg-slate-100 {% endif %}"
         >
           {{ label }}
         </a>
@@ -41,13 +64,9 @@
       </div>
     </div>
 
-    <!-- Overall Statistics (KPI Cards) -->
     {% if stats|length > 0 %}
-    <div
-      class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10"
-      data-aos="fade-up"
-      data-aos-delay="100"
-    >
+    <!-- Summary KPI Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12" data-aos="fade-up">
       {% set total_reviews = namespace(value=0) %} {% set total_positive =
       namespace(value=0) %} {% set total_negative = namespace(value=0) %} {% for
       name, info in stats.items() %} {% set total_reviews.value =
@@ -57,202 +76,234 @@
       = ((total_positive.value / total_reviews.value * 100) | round(1)) if
       total_reviews.value > 0 else 0 %}
 
-      <!-- KPI 1: Total Volume -->
+      <!-- KPI 1 -->
       <div
-        class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm relative overflow-hidden group"
+        class="bg-white rounded-2xl p-6 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-shadow duration-300"
       >
-        <div class="flex justify-between items-start mb-4">
+        <div class="flex justify-between items-start">
           <div>
             <p
-              class="text-sm font-bold text-slate-400 uppercase tracking-wider"
+              class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1"
             >
-              Total Laporan
+              Total Volume
             </p>
-            <h3 class="text-3xl font-black text-slate-900 mt-1">
+            <h2 class="text-4xl font-black text-slate-800">
               {{ total_reviews.value }}
-            </h3>
+            </h2>
           </div>
-          <div
-            class="w-10 h-10 bg-brand-50 rounded-lg flex items-center justify-center text-brand-600"
-          >
-            <i class="fas fa-file-medical-alt text-lg"></i>
+          <div class="p-3 bg-blue-50 rounded-xl text-blue-600">
+            <i class="fas fa-layer-group text-xl"></i>
           </div>
         </div>
-        <div class="flex items-center text-xs text-slate-500">
-          <i class="fas fa-hospital mr-1.5"></i>
-          <span>Dari {{ stats|length }} Fasilitas Kesehatan</span>
-        </div>
-        <div
-          class="absolute bottom-0 left-0 h-1 bg-brand-600 w-full transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"
-        ></div>
-      </div>
-
-      <!-- KPI 2: Positive Sentiment -->
-      <div
-        class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm relative overflow-hidden group"
-      >
-        <div class="flex justify-between items-start mb-4">
-          <div>
-            <p
-              class="text-sm font-bold text-slate-400 uppercase tracking-wider"
-            >
-              Sentimen Positif
-            </p>
-            <h3 class="text-3xl font-black text-slate-900 mt-1">
-              {{ total_positive.value }}
-            </h3>
-          </div>
-          <div
-            class="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center text-emerald-600"
-          >
-            <i class="fas fa-smile text-lg"></i>
-          </div>
-        </div>
-        <div class="flex items-center text-xs text-emerald-600 font-bold">
-          <i class="fas fa-chart-pie mr-1.5"></i>
-          <span>{{ overall_percentage }}% Kepuasan Pasien</span>
-        </div>
-        <div
-          class="absolute bottom-0 left-0 h-1 bg-emerald-500 w-full transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"
-        ></div>
-      </div>
-
-      <!-- KPI 3: Negative Sentiment -->
-      <div
-        class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm relative overflow-hidden group"
-      >
-        <div class="flex justify-between items-start mb-4">
-          <div>
-            <p
-              class="text-sm font-bold text-slate-400 uppercase tracking-wider"
-            >
-              Keluhan / Negatif
-            </p>
-            <h3 class="text-3xl font-black text-slate-900 mt-1">
-              {{ total_negative.value }}
-            </h3>
-          </div>
-          <div
-            class="w-10 h-10 bg-rose-50 rounded-lg flex items-center justify-center text-rose-600"
-          >
-            <i class="fas fa-frown text-lg"></i>
-          </div>
-        </div>
-        <div class="flex items-center text-xs text-rose-600 font-bold">
-          <i class="fas fa-exclamation-circle mr-1.5"></i>
+        <div class="mt-4 flex items-center gap-2 text-sm text-slate-500">
           <span
-            >{{ (100 - overall_percentage) | round(1) }}% Perlu Perbaikan</span
+            class="bg-slate-100 px-2 py-0.5 rounded text-xs font-bold text-slate-600"
           >
+            {{ stats|length }} Faskes
+          </span>
+          <span>Terdaftar</span>
         </div>
-        <div
-          class="absolute bottom-0 left-0 h-1 bg-rose-500 w-full transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"
-        ></div>
+      </div>
+
+      <!-- KPI 2 -->
+      <div
+        class="bg-white rounded-2xl p-6 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-shadow duration-300"
+      >
+        <div class="flex justify-between items-start">
+          <div>
+            <p
+              class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1"
+            >
+              Sentiment Score
+            </p>
+            <h2 class="text-4xl font-black text-emerald-600">
+              {{ overall_percentage }}%
+            </h2>
+          </div>
+          <div class="p-3 bg-emerald-50 rounded-xl text-emerald-600">
+            <i class="fas fa-heart text-xl"></i>
+          </div>
+        </div>
+        <div class="mt-4 flex items-center gap-2 text-sm text-slate-500">
+          <span
+            class="bg-emerald-100 px-2 py-0.5 rounded text-xs font-bold text-emerald-700"
+          >
+            {{ total_positive.value }}
+          </span>
+          <span>Ulasan Positif</span>
+        </div>
+      </div>
+
+      <!-- KPI 3 -->
+      <div
+        class="bg-white rounded-2xl p-6 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-shadow duration-300"
+      >
+        <div class="flex justify-between items-start">
+          <div>
+            <p
+              class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1"
+            >
+              Requires Attention
+            </p>
+            <h2 class="text-4xl font-black text-rose-500">
+              {{ total_negative.value }}
+            </h2>
+          </div>
+          <div class="p-3 bg-rose-50 rounded-xl text-rose-500">
+            <i class="fas fa-bell text-xl"></i>
+          </div>
+        </div>
+        <div class="mt-4 flex items-center gap-2 text-sm text-slate-500">
+          <span
+            class="bg-rose-100 px-2 py-0.5 rounded text-xs font-bold text-rose-700"
+          >
+            {{ (100 - overall_percentage) | round(1) }}%
+          </span>
+          <span>Tingkat Keluhan</span>
+        </div>
       </div>
     </div>
     {% endif %}
 
-    <!-- Hospital Detail Grid -->
-    <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+    <!-- Main Content: Hospital Grid -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-16">
       {% for name, info in stats.items() %}
       <div
-        class="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden"
+        class="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full group"
         data-aos="fade-up"
-        data-aos-delay="{{ loop.index0 * 50 }}"
+        data-aos-delay="{{ loop.index0 * 100 }}"
       >
-        <!-- Card Header -->
+        <!-- Header -->
         <div
-          class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50"
+          class="px-7 py-6 border-b border-slate-50 flex justify-between items-start"
         >
-          <div class="flex items-center space-x-3">
-            <div
-              class="w-10 h-10 rounded-full flex items-center justify-center text-white shadow-sm {% if info.score >= 70 %} bg-emerald-500 {% elif info.score >= 50 %} bg-amber-500 {% else %} bg-rose-500 {% endif %}"
-            >
-              <span class="font-bold text-sm">{{ info.score }}%</span>
+          <div class="flex gap-5 items-center">
+            <!-- Circular Score Indicator -->
+            <div class="relative w-14 h-14 flex-shrink-0">
+              <svg class="w-full h-full transform -rotate-90">
+                <circle
+                  cx="28"
+                  cy="28"
+                  r="24"
+                  stroke="#f1f5f9"
+                  stroke-width="4"
+                  fill="transparent"
+                ></circle>
+                <circle
+                  cx="28"
+                  cy="28"
+                  r="24"
+                  stroke="{% if info.score >= 75 %}#10b981{% elif info.score >= 50 %}#f59e0b{% else %}#ef4444{% endif %}"
+                  stroke-width="4"
+                  fill="transparent"
+                  stroke-dasharray="150.72"
+                  stroke-dashoffset="{{ 150.72 - (150.72 * info.score / 100) }}"
+                  class="transition-all duration-1000 ease-out"
+                ></circle>
+              </svg>
+              <span
+                class="absolute inset-0 flex items-center justify-center text-xs font-black text-slate-700"
+              >
+                {{ info.score }}<span class="text-[8px]">%</span>
+              </span>
             </div>
+
             <div>
-              <h3 class="font-bold text-slate-800 text-lg leading-tight">
+              <h3
+                class="font-bold text-lg text-slate-800 leading-snug group-hover:text-blue-600 transition-colors cursor-default"
+              >
                 {{ name }}
               </h3>
-              <p class="text-xs text-slate-500">Update terakhir: Real-time</p>
+              <p
+                class="text-xs font-medium text-slate-400 mt-1 flex items-center gap-1"
+              >
+                <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Live
+                Monitoring
+              </p>
             </div>
           </div>
 
-          <div class="text-right">
-            <span
-              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if info.score >= 70 %} bg-emerald-100 text-emerald-800 {% elif info.score >= 50 %} bg-amber-100 text-amber-800 {% else %} bg-rose-100 text-rose-800 {% endif %}"
-            >
-              {% if info.score >= 70 %} Sangat Baik {% elif info.score >= 50 %}
-              Cukup {% else %} Kritis {% endif %}
-            </span>
-          </div>
+          <!-- Status Badge -->
+          <span
+            class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border {% if info.score >= 75 %} bg-emerald-50 text-emerald-600 border-emerald-100 {% elif info.score >= 50 %} bg-amber-50 text-amber-600 border-amber-100 {% else %} bg-rose-50 text-rose-600 border-rose-100 {% endif %}"
+          >
+            {% if info.score >= 75 %} Excellent {% elif info.score >= 50 %}
+            Moderate {% else %} Critical {% endif %}
+          </span>
         </div>
 
-        <!-- Card Body -->
-        <div class="p-6">
-          <!-- Progress Bar Visualization -->
-          <div class="mb-6">
-            <div class="flex justify-between text-sm font-semibold mb-2">
-              <span class="text-slate-600">Distribusi Sentimen</span>
-              <span class="text-slate-400 text-xs"
-                >{{ info.total }} Total Ulasan</span
+        <!-- Body -->
+        <div class="p-7 flex-grow flex flex-col justify-between">
+          <!-- Stats Row -->
+          <div class="grid grid-cols-2 gap-4 mb-6">
+            <div
+              class="bg-slate-50 p-3 rounded-lg text-center border border-slate-100"
+            >
+              <span class="block text-xl font-bold text-emerald-600"
+                >{{ info.pos }}</span
+              >
+              <span
+                class="text-[10px] uppercase font-bold text-slate-400 tracking-wider"
+                >Positif</span
               >
             </div>
-
-            <div class="relative h-4 bg-slate-100 rounded-full overflow-hidden">
-              <!-- Stacked Bar -->
-              <div class="flex h-full w-full">
-                <!-- Positive Part -->
-                <div
-                  class="h-full bg-emerald-500 transition-all duration-1000 ease-out progress-bar relative group/tooltip"
-                  style="width: 0%"
-                  data-width="{{ info.score }}%"
-                >
-                  <div class="absolute inset-0 bg-white/20"></div>
-                </div>
-                <!-- Negative Part -->
-                <div
-                  class="h-full bg-rose-500 transition-all duration-1000 ease-out progress-bar"
-                  style="width: 0%"
-                  data-width="{{ 100 - info.score }}%"
-                ></div>
-              </div>
-            </div>
-
-            <div class="flex justify-between mt-2 text-xs">
-              <div class="text-emerald-600 font-bold flex items-center">
-                <div class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5"></div>
-                Positif ({{ info.pos }})
-              </div>
-              <div class="text-rose-600 font-bold flex items-center">
-                Negatif ({{ info.neg }})
-                <div class="w-2 h-2 rounded-full bg-rose-500 ml-1.5"></div>
-              </div>
+            <div
+              class="bg-slate-50 p-3 rounded-lg text-center border border-slate-100"
+            >
+              <span class="block text-xl font-bold text-rose-500"
+                >{{ info.neg }}</span
+              >
+              <span
+                class="text-[10px] uppercase font-bold text-slate-400 tracking-wider"
+                >Negatif</span
+              >
             </div>
           </div>
 
-          <!-- Quick Analysis -->
-          <div class="bg-slate-50 rounded-lg p-4 border border-slate-100">
-            <div class="flex items-start space-x-3">
-              <i
-                class="fas fa-stethoscope mt-1 {% if info.score >= 70 %} text-emerald-500 {% elif info.score >= 50 %} text-amber-500 {% else %} text-rose-500 {% endif %}"
-              ></i>
+          <!-- AI Insight Box -->
+          <div
+            class="relative bg-gradient-to-br from-slate-50 to-white rounded-xl p-5 border border-slate-100"
+          >
+            <div
+              class="absolute top-0 left-0 w-1 h-full rounded-l-xl {% if info.score >= 75 %} bg-emerald-500 {% elif info.score >= 50 %} bg-amber-500 {% else %} bg-rose-500 {% endif %}"
+            ></div>
+
+            <div class="flex items-start gap-3">
+              <div class="mt-0.5">
+                <i class="fas fa-robot text-slate-400"></i>
+              </div>
               <div>
-                <h4 class="text-sm font-bold text-slate-800 mb-1">
-                  Diagnostik AI
+                <h4 class="text-xs font-bold text-slate-800 uppercase mb-1">
+                  AI Diagnostic Summary
                 </h4>
-                <p class="text-xs text-slate-500 leading-relaxed">
-                  {% if info.score >= 80 %} Kualitas pelayanan sangat prima.
-                  Mayoritas pasien merasa puas dengan fasilitas dan kinerja
-                  tenaga medis. {% elif info.score >= 60 %} Pelayanan cukup
-                  baik, namun terdapat beberapa keluhan yang perlu diperhatikan
-                  manajemen untuk peningkatan mutu. {% else %} Terdeteksi
-                  lonjakan sentimen negatif. Disarankan untuk segera
-                  mengevaluasi prosedur layanan dan fasilitas terkait. {% endif
-                  %}
+                <p class="text-sm text-slate-600 leading-relaxed font-light">
+                  {% if info.score >= 80 %} Performa sangat baik. Pasien
+                  mengapresiasi kecepatan layanan dan keramahan staf.
+                  Pertahankan standar ini. {% elif info.score >= 60 %} Kualitas
+                  layanan stabil, namun terdeteksi beberapa isu terkait waktu
+                  tunggu yang perlu optimasi operasional. {% else %}
+                  <strong>Perhatian Diperlukan.</strong> Tingkat sentimen
+                  negatif tinggi pada aspek fasilitas/layanan. Segera lakukan
+                  evaluasi mendalam. {% endif %}
                 </p>
               </div>
             </div>
           </div>
+        </div>
+
+        <!-- Footer Action (Optional) -->
+        <div
+          class="px-7 py-4 bg-slate-50 border-t border-slate-100 flex justify-between items-center"
+        >
+          <span class="text-xs text-slate-400 font-medium"
+            >Total {{ info.total }} Ulasan</span
+          >
+          <a
+            href="{{ url_for('developer_page') }}"
+            class="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors"
+          >
+            Detail Analisis <i class="fas fa-arrow-right text-[10px]"></i>
+          </a>
         </div>
       </div>
       {% endfor %}
@@ -260,82 +311,43 @@
 
     <!-- Empty State -->
     {% if stats|length == 0 %}
-    <div
-      class="flex flex-col items-center justify-center py-24 bg-white rounded-3xl border border-dashed border-slate-300 text-center"
-      data-aos="zoom-in"
-    >
+    <div class="text-center py-20">
       <div
-        class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6"
+        class="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6"
       >
-        <i class="fas fa-clipboard-list text-3xl text-slate-400"></i>
+        <i class="fas fa-inbox text-4xl text-slate-300"></i>
       </div>
-      <h3 class="text-xl font-bold text-slate-900 mb-2">
-        Belum Ada Data Statistik
-      </h3>
-      <p class="text-slate-500 max-w-md mb-8">
-        Belum ada laporan masuk untuk rentang waktu ini. Jadilah yang pertama
-        memberikan penilaian.
+      <h3 class="text-xl font-bold text-slate-900">Belum Ada Data</h3>
+      <p class="text-slate-500 mt-2 mb-8">
+        Tidak ada laporan yang ditemukan untuk filter waktu ini.
       </p>
       <a
         href="{{ url_for('input_page') }}"
-        class="px-6 py-3 bg-brand-600 text-white rounded-lg font-semibold hover:bg-brand-700 transition-colors shadow-lg shadow-brand-500/30"
+        class="inline-flex items-center px-6 py-3 bg-slate-900 text-white rounded-lg font-bold hover:bg-black transition-colors shadow-lg"
       >
-        <i class="fas fa-plus mr-2"></i>Buat Laporan Baru
+        <i class="fas fa-plus mr-2"></i> Buat Laporan Baru
       </a>
     </div>
     {% endif %}
 
-    <!-- System Status Footer -->
+    <!-- Footer Stats -->
     {% if stats|length > 0 %}
-    <div class="mt-12 pt-8 border-t border-slate-200">
-      <div
-        class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center md:text-left"
-      >
-        <div
-          class="flex items-center justify-center md:justify-start space-x-3 text-slate-500"
+    <div
+      class="border-t border-slate-200 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-medium text-slate-400"
+    >
+      <div class="flex gap-6">
+        <span class="flex items-center gap-2"
+          ><div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+          System Operational</span
         >
-          <i class="fas fa-server text-brand-500"></i>
-          <span class="text-sm"
-            >Server Status:
-            <span class="text-emerald-600 font-bold">Online</span></span
-          >
-        </div>
-        <div
-          class="flex items-center justify-center md:justify-start space-x-3 text-slate-500"
+        <span class="flex items-center gap-2"
+          ><i class="fas fa-shield-alt"></i> AES-256 Encrypted</span
         >
-          <i class="fas fa-database text-brand-500"></i>
-          <span class="text-sm"
-            >Last Sync:
-            <span class="font-mono text-slate-700">Just Now</span></span
-          >
-        </div>
-        <div
-          class="flex items-center justify-center md:justify-start space-x-3 text-slate-500"
-        >
-          <i class="fas fa-shield-alt text-brand-500"></i>
-          <span class="text-sm"
-            >Data Encryption:
-            <span class="text-brand-700 font-bold">AES-256</span></span
-          >
-        </div>
       </div>
+      <div class="font-mono">LAST SYNC: {{ now }}</div>
     </div>
     {% endif %}
   </div>
 </section>
-
-<script>
-  // Animate progress bars smoothly on load
-  document.addEventListener("DOMContentLoaded", function () {
-    // Delay slightly to allow layout to settle
-    setTimeout(() => {
-      const progressBars = document.querySelectorAll(".progress-bar");
-      progressBars.forEach((bar) => {
-        const targetWidth = bar.getAttribute("data-width");
-        bar.style.width = targetWidth;
-      });
-    }, 200);
-  });
-</script>
 
 {% endblock %}
