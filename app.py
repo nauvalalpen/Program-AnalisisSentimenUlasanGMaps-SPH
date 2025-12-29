@@ -304,48 +304,57 @@ def download_report():
 def download_report_specific(rs_name):
     if not ai_brain.model: return "Model belum dilatih!", 400
 
-    # 1. AMBIL DATA MASA LALU (Dataset Excel)
+    # 1. DATA MASA LALU (Dataset Excel)
     df_past = ai_brain.historical_data['df']
-    if df_past is not None:
-        df_rs_past = df_past[df_past['Nama Rumah Sakit'] == rs_name]
-        text_neg_past = " ".join(df_rs_past[df_rs_past['Label'] == 'Negatif']['Komentar Bersih'].astype(str))
-        text_pos_past = " ".join(df_rs_past[df_rs_past['Label'] == 'Positif']['Komentar Bersih'].astype(str))
-    else:
-        text_neg_past = ""
-        text_pos_past = ""
+    df_rs_past = df_past[df_past['Nama Rumah Sakit'] == rs_name]
+    
+    past_total = len(df_rs_past)
+    past_pos = len(df_rs_past[df_rs_past['Label'] == 'Positif'])
+    past_neg = len(df_rs_past[df_rs_past['Label'] == 'Negatif'])
+    past_score = round((past_pos / past_total * 100), 1) if past_total > 0 else 0
 
-    # 2. AMBIL DATA MASA SEKARANG (Database SQLite)
-    logs = ReviewLog.query.filter_by(hospital_name=rs_name).all()
+    text_neg_past = " ".join(df_rs_past[df_rs_past['Label'] == 'Negatif']['Komentar Bersih'].astype(str))
+    text_pos_past = " ".join(df_rs_past[df_rs_past['Label'] == 'Positif']['Komentar Bersih'].astype(str))
+
+    # 2. DATA MASA SEKARANG (Database SQLite)
+    logs = ReviewLog.query.filter_by(hospital_name=rs_name).order_by(ReviewLog.timestamp.desc()).all()
+    
+    live_total = len(logs)
+    live_pos = len([l for l in logs if l.sentiment == 'Positif'])
+    live_neg = len([l for l in logs if l.sentiment == 'Negatif'])
+    live_score = round((live_pos / live_total * 100), 1) if live_total > 0 else 0
+    
     text_neg_live = " ".join([log.review_text for log in logs if log.sentiment == 'Negatif'])
     text_pos_live = " ".join([log.review_text for log in logs if log.sentiment == 'Positif'])
 
-    # 3. GENERATE 4 GAMBAR WORDCLOUD
-    # Kita generate terpisah agar bisa ditaruh kiri-kanan di PDF
-    wc_neg_past_img = ai_brain.generate_wordcloud(text_neg_past, 'Reds')
-    wc_pos_past_img = ai_brain.generate_wordcloud(text_pos_past, 'Greens')
-    
-    wc_neg_live_img = ai_brain.generate_wordcloud(text_neg_live, 'Reds')
-    wc_pos_live_img = ai_brain.generate_wordcloud(text_pos_live, 'Greens')
-
-    # 4. DATA PACK
-    rs_data = {
-        'name': rs_name,
-        'analysis_neg': ai_brain.generate_analysis(text_neg_past, text_neg_live, 'Negatif'),
-        'analysis_pos': ai_brain.generate_analysis(text_pos_past, text_pos_live, 'Positif'),
-        
-        # Kirim 4 Gambar
-        'wc_neg_past': wc_neg_past_img,
-        'wc_pos_past': wc_pos_past_img,
-        'wc_neg_live': wc_neg_live_img,
-        'wc_pos_live': wc_pos_live_img
+    # 3. CONTOH ULASAN (Bukti Nyata)
+    # Ambil 3 ulasan terbaru untuk masing-masing sentimen
+    sample_reviews = {
+        'pos': [l.review_text for l in logs if l.sentiment == 'Positif'][:3],
+        'neg': [l.review_text for l in logs if l.sentiment == 'Negatif'][:3]
     }
 
-    # 5. BUAT PDF
+    # 4. Generate Wordclouds (Prioritas Live, fallback ke Past jika kosong)
+    wc_text_neg = text_neg_live if len(text_neg_live.strip()) > 5 else text_neg_past
+    wc_text_pos = text_pos_live if len(text_pos_live.strip()) > 5 else text_pos_past
+    
+    wc_neg = ai_brain.generate_wordcloud(wc_text_neg, 'Reds')
+    wc_pos = ai_brain.generate_wordcloud(wc_text_pos, 'Greens')
+
+    # 5. Analisis Naratif
+    analysis_neg = ai_brain.generate_analysis(text_neg_past, text_neg_live, 'Negatif')
+    analysis_pos = ai_brain.generate_analysis(text_pos_past, text_pos_live, 'Positif')
+
+    # 6. PANGGIL PDF GENERATOR
     pdf_output = utils.create_specific_report(
-        ai_brain.metrics, 
-        {'total': 0}, 
-        ai_brain.learning_curve_img, 
-        rs_specific_data=rs_data
+        rs_name=rs_name,
+        stats_past={'total': past_total, 'pos': past_pos, 'neg': past_neg, 'score': past_score},
+        stats_live={'total': live_total, 'pos': live_pos, 'neg': live_neg, 'score': live_score},
+        analysis_neg=analysis_neg,
+        analysis_pos=analysis_pos,
+        wc_neg=wc_neg,
+        wc_pos=wc_pos,
+        samples=sample_reviews
     )
 
     if isinstance(pdf_output, str):
@@ -357,7 +366,7 @@ def download_report_specific(rs_name):
         io.BytesIO(pdf_bytes),
         mimetype='application/pdf',
         as_attachment=True,
-        download_name=f'Laporan_Evaluasi_{rs_name}.pdf'
+        download_name=f'Laporan_Audit_{rs_name}.pdf'
     )
 
 if __name__ == '__main__':

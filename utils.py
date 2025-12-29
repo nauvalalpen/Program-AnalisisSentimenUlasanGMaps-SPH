@@ -31,21 +31,24 @@ class PDFReport(FPDF):
         self.set_text_color(50, 50, 50)
         self.cell(0, 8, title, 0, 1, 'L')
 
-    def add_chart(self, b64_str, h=80):
-        if not b64_str: return
-        try:
-            img_data = base64.b64decode(b64_str)
-            with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as tmp_file:
-                tmp_file.write(img_data)
-                tmp_path = tmp_file.name
-            
-            # Center image
-            x_pos = (210 - 140) / 2 # A4 width 210, img width 140
-            self.image(tmp_path, x=x_pos, w=140, h=h)
-            os.unlink(tmp_path)
-            self.ln(5)
-        except:
-            self.cell(0, 10, "[Gambar Tidak Tersedia]", 0, 1)
+    def add_chart(self, b64_str, x=None, y=None, w=100, h=80):
+            if not b64_str: return
+            try:
+                img_data = base64.b64decode(b64_str)
+                with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as tmp_file:
+                    tmp_file.write(img_data)
+                    tmp_path = tmp_file.name
+                
+                # Jika x/y tidak diset, gunakan posisi default (tengah)
+                if x is None: x = (210 - w) / 2
+                if y is None: y = self.get_y()
+                
+                self.image(tmp_path, x=x, y=y, w=w, h=h)
+                os.unlink(tmp_path)
+                # Jika posisi custom, jangan otomatis ln()
+                if x == (210 - w) / 2: self.ln(5) 
+            except:
+                pass
 
 def clean_text(text):
     if not isinstance(text, str): return str(text)
@@ -206,48 +209,128 @@ def create_global_report(metrics, stats, learning_curve, wc_pos, wc_neg, hospita
 
     return pdf.output(dest='S')
 
-def create_specific_report(rs_name, analysis_neg, analysis_pos, wc_neg, wc_pos, wc_neg_past, wc_pos_past):
+def create_specific_report(rs_name, stats_past, stats_live, analysis_neg, analysis_pos, wc_neg, wc_pos, samples):
     pdf = PDFReport()
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
     
     clean_rs_name = clean_text(rs_name)
     
-    # Judul
-    pdf.set_font('Arial', 'B', 20)
-    pdf.multi_cell(0, 10, f"Laporan Evaluasi: {clean_rs_name}", 0, 'C')
-    pdf.ln(10)
+    # 1. HEADER HALAMAN
+    pdf.set_font('Arial', 'B', 18)
+    pdf.cell(0, 10, f"Laporan Audit Kualitas Layanan", 0, 1, 'C')
+    pdf.set_font('Arial', '', 12)
+    pdf.cell(0, 10, f"{clean_rs_name}", 0, 1, 'C')
+    pdf.line(10, 30, 200, 30)
+    pdf.ln(5)
+
+    # 2. SCORECARD (KOTAK PERBANDINGAN)
+    pdf.chapter_title("1. Ringkasan Kinerja (Scorecard)")
     
-    # Bagian 1: Analisis Naratif
-    pdf.chapter_title("1. Diagnosis AI (Kesimpulan)")
+    # Hitung Tren (Kenaikan/Penurunan)
+    raw_trend = stats_live['score'] - stats_past['score']
+    trend = round(raw_trend, 1) # <--- PERBAIKAN: Dibulatkan 1 desimal
+    trend_symbol = "+" if trend >= 0 else ""
+    
+    pdf.set_font('Arial', '', 10)
+    pdf.cell(95, 8, "Skor Historis (Masa Lalu)", 1, 0, 'C')
+    pdf.cell(95, 8, "Skor Saat Ini (Real-time)", 1, 1, 'C')
+    
+    # PERBAIKAN VISUAL: Ukuran font sedikit dikecilkan agar muat
+    pdf.set_font('Arial', 'B', 20) 
+    
+    # Kolom Kiri
+    pdf.set_text_color(0, 0, 0) # Hitam
+    pdf.cell(95, 15, f"{stats_past['score']}%", 1, 0, 'C')
+
+    # Kolom Kanan
+    if trend >= 0: pdf.set_text_color(0, 100, 0) # Hijau (Tetap kita warnai agar tahu naik/turun)
+    else: pdf.set_text_color(200, 0, 0) # Merah
+    
+    # Tampilkan HANYA Skor Saat Ini
+    pdf.cell(95, 15, f"{stats_live['score']}%", 1, 1, 'C')
+    
+    pdf.set_text_color(0, 0, 0) # Reset ke hitam untuk konten selanjutnya
+
+    # Tabel Detail Angka
+    pdf.set_font('Arial', '', 10)
+    pdf.cell(47, 8, f"Total Data: {stats_past['total']}", 1, 0, 'C')
+    pdf.cell(48, 8, f"Positif: {stats_past['pos']} | Negatif: {stats_past['neg']}", 1, 0, 'C')
+    pdf.cell(47, 8, f"Total Data: {stats_live['total']}", 1, 0, 'C')
+    pdf.cell(48, 8, f"Positif: {stats_live['pos']} | Negatif: {stats_live['neg']}", 1, 1, 'C')
+    pdf.ln(5)
+
+    # 3. DIAGNOSIS AI (NARASI)
+    pdf.chapter_title("2. Diagnosis AI (Analisis Kualitatif)")
     
     pdf.set_font('Arial', 'B', 10)
     pdf.set_text_color(150, 0, 0)
-    pdf.cell(0, 8, "Analisis Keluhan:", 0, 1)
+    pdf.cell(0, 8, "Analisis Keluhan & Masalah:", 0, 1)
     pdf.set_font('Arial', '', 10)
     pdf.set_text_color(50, 50, 50)
     pdf.multi_cell(0, 6, clean_text(analysis_neg))
-    pdf.ln(3)
+    pdf.ln(2)
 
     pdf.set_font('Arial', 'B', 10)
     pdf.set_text_color(0, 100, 0)
-    pdf.cell(0, 8, "Analisis Kekuatan:", 0, 1)
+    pdf.cell(0, 8, "Analisis Kekuatan & Apresiasi:", 0, 1)
     pdf.set_font('Arial', '', 10)
     pdf.set_text_color(50, 50, 50)
     pdf.multi_cell(0, 6, clean_text(analysis_pos))
-    pdf.ln(10)
-    
-    # Bagian 2: Visualisasi (Hanya yang Live/Terkini agar fokus)
     pdf.set_text_color(0, 0, 0)
-    pdf.chapter_title("2. Visualisasi Kata Kunci (Terkini)")
+    pdf.ln(5)
+
+    # 4. VISUALISASI WORDCLOUD
+    pdf.chapter_title("3. Peta Kata Kunci (Visualisasi)")
+    y_start = pdf.get_y()
     
     if wc_neg:
-        pdf.section_subtitle("Peta Keluhan Saat Ini:")
-        pdf.add_chart(wc_neg, h=70)
-        
-    if wc_pos:
-        pdf.section_subtitle("Peta Kekuatan Saat Ini:")
-        pdf.add_chart(wc_pos, h=70)
-        
-    return pdf.output(dest='S')
+        pdf.set_xy(10, y_start)
+        pdf.set_font('Arial', 'B', 9); pdf.cell(90, 8, "Topik Keluhan", 0, 1, 'C')
+        pdf.add_chart(wc_neg, x=10, y=y_start+8, w=90, h=50)
     
+    if wc_pos:
+        pdf.set_xy(105, y_start)
+        pdf.set_font('Arial', 'B', 9); pdf.cell(90, 8, "Topik Apresiasi", 0, 1, 'C')
+        pdf.add_chart(wc_pos, x=105, y=y_start+8, w=90, h=50)
+    
+    pdf.set_y(y_start + 65) # Pindah ke bawah gambar
+
+    # 5. SAMPEL ULASAN ASLI (BUKTI)
+    pdf.add_page() # Pindah halaman agar rapi
+    pdf.chapter_title("4. Sampel Suara Pasien (Bukti Konkret)")
+    
+    # Kolom Negatif
+    pdf.set_font('Arial', 'B', 11)
+    pdf.set_text_color(200, 0, 0)
+    pdf.cell(0, 10, "Sampel Keluhan (Perlu Perhatian):", 0, 1)
+    pdf.set_font('Arial', 'I', 10)
+    pdf.set_text_color(80, 80, 80)
+    
+    if not samples['neg']:
+        pdf.cell(0, 8, "- Belum ada data keluhan terbaru.", 0, 1)
+    else:
+        for review in samples['neg']:
+            # Bersihkan dan potong jika terlalu panjang
+            clean_rev = clean_text(review)
+            pdf.multi_cell(0, 6, f"- \"{clean_rev}\"")
+            pdf.ln(2)
+            
+    pdf.ln(5)
+
+    # Kolom Positif
+    pdf.set_font('Arial', 'B', 11)
+    pdf.set_text_color(0, 128, 0)
+    pdf.cell(0, 10, "Sampel Apresiasi (Pertahankan):", 0, 1)
+    pdf.set_font('Arial', 'I', 10)
+    pdf.set_text_color(80, 80, 80)
+    
+    if not samples['pos']:
+        pdf.cell(0, 8, "- Belum ada data apresiasi terbaru.", 0, 1)
+    else:
+        for review in samples['pos']:
+            clean_rev = clean_text(review)
+            pdf.multi_cell(0, 6, f"- \"{clean_rev}\"")
+            pdf.ln(2)
+
+    return pdf.output(dest='S')
