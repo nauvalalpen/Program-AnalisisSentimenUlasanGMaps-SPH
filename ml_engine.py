@@ -210,23 +210,16 @@ class SentimentEngine:
     # Fungsi generate_plot_bytes untuk PDF (diperlukan untuk app.py)
     def generate_plot_bytes(self, plot_type, data=None):
         img = io.BytesIO()
-        plt.figure(figsize=(6, 4))
+        plt.figure(figsize=(6, 4)) # Ukuran sedikit lebih kecil agar pas di PDF
         
-        if plot_type == 'model_health':
-            labels = ['Training', 'Testing']
-            values = [self.metrics.get('train_accuracy', 0), self.metrics.get('accuracy', 0)]
-            bars = plt.bar(labels, values, color=['#6c757d', '#0d6efd'])
-            plt.ylim(0, 100)
-            plt.title('Kesehatan Model (Training vs Testing)')
-            plt.ylabel('Akurasi (%)')
-            for bar in bars:
-                yval = bar.get_height()
-                plt.text(bar.get_x() + bar.get_width()/2, yval + 2, f"{yval}%", ha='center', fontweight='bold')
-        
-        elif plot_type == 'sentiment_dist':
+        if plot_type == 'sentiment_dist':
+            # Pie Chart
             labels = ['Positif', 'Negatif']
+            # Cek jika data kosong untuk menghindari error pie chart
+            if sum(data) == 0: data = [1, 0] 
+            
             plt.pie(data, labels=labels, autopct='%1.1f%%', colors=['#198754', '#dc3545'], startangle=90)
-            plt.title('Distribusi Sentimen Live')
+            plt.title('Distribusi Sentimen (Live Data)')
 
         plt.tight_layout()
         plt.savefig(img, format='png')

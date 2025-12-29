@@ -9,6 +9,7 @@ import pytz # Library Timezone
 from fpdf import FPDF # Library PDF
 from flask import jsonify
 from sqlalchemy import func
+import base64
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///hospital_reviews.db'
@@ -230,32 +231,67 @@ def get_hospital_wordcloud():
     
 @app.route('/api/download_report')
 def download_report():
-    if not ai_brain.model: return "Model belum dilatih!", 400
+    if not ai_brain.model:
+        return "Model belum dilatih! Silakan upload data training dulu.", 400
         
+    # 1. Ambil Data Log (Live Data)
     logs = ReviewLog.query.all()
-    live_stats = {'total': len(logs)} # Sederhana saja untuk demo
-
-    # Panggil fungsi PDF yang sudah diperbaiki namanya
-    # Output dari fpdf2 dengan dest='S' adalah bytearray (di versi baru) atau string latin-1
-    pdf_output = utils.create_pdf_report(
-        ai_brain.metrics, 
-        live_stats, 
-        ai_brain.learning_curve_img
-    )
     
-    # Konversi ke bytes murni agar aman
-    if isinstance(pdf_output, str):
-        pdf_bytes = pdf_output.encode('latin-1')
-    else:
-        pdf_bytes = bytes(pdf_output)
+    # 2. Statistik Global
+    total = len(logs)
+    pos = len([l for l in logs if l.sentiment == 'Positif'])
+    neg = len([l for l in logs if l.sentiment == 'Negatif'])
+    live_stats = {'total': total, 'pos': pos, 'neg': neg}
+
+    # 3. Generate Pie Chart (Distribusi)
+    pie_chart_img = None
+    if total > 0:
+        pie_chart_img = ai_brain.generate_plot_bytes('sentiment_dist', [pos, neg])
+        # Convert BytesIO to Base64 String untuk PDF generator
+        pie_chart_img = base64.b64encode(pie_chart_img.getvalue()).decode('utf-8')
+
+    # 4. Generate Wordcloud Global (Dari Dataset Training sebagai representasi pengetahuan)
+    # Atau gabungan Dataset + Live jika mau
+    text_pos = ai_brain.historical_data['positive']
+    text_neg = ai_brain.historical_data['negative']
+    wc_pos_img = ai_brain.generate_wordcloud(text_pos, 'Greens')
+    wc_neg_img = ai_brain.generate_wordcloud(text_neg, 'Reds')
+
+    # 5. Data Peringkat Rumah Sakit
+    hospital_ranks = []
+    for rs in ai_brain.hospital_list:
+        rs_logs = [l for l in logs if l.hospital_name == rs]
+        rs_total = len(rs_logs)
+        if rs_total > 0:
+            rs_pos = len([l for l in rs_logs if l.sentiment == 'Positif'])
+            score = round((rs_pos / rs_total) * 100)
+            hospital_ranks.append({
+                'name': rs, 'total': rs_total, 'pos': rs_pos, 'score': score
+            })
+        else:
+            # Tetap masukkan RS meski belum ada data (score 0)
+            hospital_ranks.append({'name': rs, 'total': 0, 'pos': 0, 'score': 0})
+    
+    # Sort by Score
+    hospital_ranks = sorted(hospital_ranks, key=lambda x: x['score'], reverse=True)
+
+    # 6. Generate PDF
+    pdf_bytes = utils.create_comprehensive_report(
+        ai_brain.metrics,
+        live_stats,
+        ai_brain.learning_curve_img, # Grafik Learning Curve
+        wc_pos_img,
+        wc_neg_img,
+        hospital_ranks,
+        pie_chart_img
+    )
 
     return send_file(
         io.BytesIO(pdf_bytes),
         mimetype='application/pdf',
         as_attachment=True,
-        download_name='Laporan_Lengkap.pdf'
+        download_name='Laporan_Lengkap_SPH.pdf'
     )
-
     
 @app.route('/api/download_report_specific/<rs_name>')
 def download_report_specific(rs_name):
