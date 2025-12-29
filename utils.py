@@ -51,7 +51,7 @@ def clean_text(text):
     if not isinstance(text, str): return str(text)
     return text.encode('latin-1', 'ignore').decode('latin-1')
 
-def create_comprehensive_report(metrics, stats, learning_curve, wc_pos, wc_neg, hospital_ranks, pie_chart):
+def create_global_report(metrics, stats, learning_curve, wc_pos, wc_neg, hospital_ranks, pie_chart):
     pdf = PDFReport()
     pdf.set_auto_page_break(auto=True, margin=15)
     
@@ -206,4 +206,48 @@ def create_comprehensive_report(metrics, stats, learning_curve, wc_pos, wc_neg, 
 
     return pdf.output(dest='S')
 
+def create_specific_report(rs_name, analysis_neg, analysis_pos, wc_neg, wc_pos, wc_neg_past, wc_pos_past):
+    pdf = PDFReport()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
+    
+    clean_rs_name = clean_text(rs_name)
+    
+    # Judul
+    pdf.set_font('Arial', 'B', 20)
+    pdf.multi_cell(0, 10, f"Laporan Evaluasi: {clean_rs_name}", 0, 'C')
+    pdf.ln(10)
+    
+    # Bagian 1: Analisis Naratif
+    pdf.chapter_title("1. Diagnosis AI (Kesimpulan)")
+    
+    pdf.set_font('Arial', 'B', 10)
+    pdf.set_text_color(150, 0, 0)
+    pdf.cell(0, 8, "Analisis Keluhan:", 0, 1)
+    pdf.set_font('Arial', '', 10)
+    pdf.set_text_color(50, 50, 50)
+    pdf.multi_cell(0, 6, clean_text(analysis_neg))
+    pdf.ln(3)
+
+    pdf.set_font('Arial', 'B', 10)
+    pdf.set_text_color(0, 100, 0)
+    pdf.cell(0, 8, "Analisis Kekuatan:", 0, 1)
+    pdf.set_font('Arial', '', 10)
+    pdf.set_text_color(50, 50, 50)
+    pdf.multi_cell(0, 6, clean_text(analysis_pos))
+    pdf.ln(10)
+    
+    # Bagian 2: Visualisasi (Hanya yang Live/Terkini agar fokus)
+    pdf.set_text_color(0, 0, 0)
+    pdf.chapter_title("2. Visualisasi Kata Kunci (Terkini)")
+    
+    if wc_neg:
+        pdf.section_subtitle("Peta Keluhan Saat Ini:")
+        pdf.add_chart(wc_neg, h=70)
+        
+    if wc_pos:
+        pdf.section_subtitle("Peta Kekuatan Saat Ini:")
+        pdf.add_chart(wc_pos, h=70)
+        
+    return pdf.output(dest='S')
     

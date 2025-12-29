@@ -272,7 +272,7 @@ def download_report():
     hospital_ranks = sorted(hospital_ranks, key=lambda x: x['score'], reverse=True)
 
     # 6. Generate PDF (Raw Output)
-    raw_pdf = utils.create_comprehensive_report(
+    raw_pdf = utils.create_global_report(
         ai_brain.metrics,
         live_stats,
         ai_brain.learning_curve_img,
@@ -341,7 +341,7 @@ def download_report_specific(rs_name):
     }
 
     # 5. BUAT PDF
-    pdf_output = utils.create_pdf_report(
+    pdf_output = utils.create_specific_report(
         ai_brain.metrics, 
         {'total': 0}, 
         ai_brain.learning_curve_img, 
