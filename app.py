@@ -247,11 +247,9 @@ def download_report():
     pie_chart_img = None
     if total > 0:
         pie_chart_img = ai_brain.generate_plot_bytes('sentiment_dist', [pos, neg])
-        # Convert BytesIO to Base64 String untuk PDF generator
         pie_chart_img = base64.b64encode(pie_chart_img.getvalue()).decode('utf-8')
 
-    # 4. Generate Wordcloud Global (Dari Dataset Training sebagai representasi pengetahuan)
-    # Atau gabungan Dataset + Live jika mau
+    # 4. Generate Wordcloud Global
     text_pos = ai_brain.historical_data['positive']
     text_neg = ai_brain.historical_data['negative']
     wc_pos_img = ai_brain.generate_wordcloud(text_pos, 'Greens')
@@ -269,22 +267,31 @@ def download_report():
                 'name': rs, 'total': rs_total, 'pos': rs_pos, 'score': score
             })
         else:
-            # Tetap masukkan RS meski belum ada data (score 0)
             hospital_ranks.append({'name': rs, 'total': 0, 'pos': 0, 'score': 0})
     
-    # Sort by Score
     hospital_ranks = sorted(hospital_ranks, key=lambda x: x['score'], reverse=True)
 
-    # 6. Generate PDF
-    pdf_bytes = utils.create_comprehensive_report(
+    # 6. Generate PDF (Raw Output)
+    raw_pdf = utils.create_comprehensive_report(
         ai_brain.metrics,
         live_stats,
-        ai_brain.learning_curve_img, # Grafik Learning Curve
+        ai_brain.learning_curve_img,
         wc_pos_img,
         wc_neg_img,
         hospital_ranks,
         pie_chart_img
     )
+
+    # === PERBAIKAN DI SINI (Konversi String ke Bytes) ===
+    if isinstance(raw_pdf, str):
+        # Jika outputnya string, encode ke latin-1
+        pdf_bytes = raw_pdf.encode('latin-1')
+    elif isinstance(raw_pdf, bytearray):
+        # Jika outputnya bytearray, ubah ke bytes
+        pdf_bytes = bytes(raw_pdf)
+    else:
+        # Jika sudah bytes, biarkan
+        pdf_bytes = raw_pdf
 
     return send_file(
         io.BytesIO(pdf_bytes),
