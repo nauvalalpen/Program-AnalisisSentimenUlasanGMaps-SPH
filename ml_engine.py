@@ -190,22 +190,60 @@ class SentimentEngine:
         words = [w for w in words if w not in stopwords and len(w) > 3]
         return [word for word, count in Counter(words).most_common(top_n)]
 
+    # ... (Import lainnya tetap sama) ...
+
+    # --- UPDATE METODE INI ---
     def generate_analysis(self, past_text, current_text, sentiment_type):
-        past_keywords = set(self.extract_top_keywords(past_text))
-        current_keywords = set(self.extract_top_keywords(current_text))
+        """
+        Menghasilkan narasi analisis komparatif berbentuk paragraf.
+        """
+        # Ambil lebih banyak keyword (top 10) agar analisis lebih kaya
+        past_keywords = set(self.extract_top_keywords(past_text, top_n=10))
+        current_keywords = set(self.extract_top_keywords(current_text, top_n=10))
         
-        if not current_keywords: return "Data terkini belum cukup."
+        if not current_keywords: 
+            return "Data ulasan terkini belum cukup banyak untuk menghasilkan analisis tren yang akurat."
+
+        # Analisis Himpunan Kata
+        persistent = list(past_keywords.intersection(current_keywords)) # Masalah/Kekuatan yang persisten
+        new_emerging = list(current_keywords - past_keywords)           # Hal baru yang muncul
+        disappeared = list(past_keywords - current_keywords)            # Hal lama yang hilang
         
-        common = past_keywords.intersection(current_keywords)
-        new_issues = current_keywords - past_keywords
-        
+        narrative = []
+
         if sentiment_type == 'Negatif':
-            if len(new_issues) > 0: return f"⚠️ Isu Baru: '{', '.join(list(new_issues)[:3])}'."
-            elif len(common) >= 1: return f"🔄 Masalah Lama: '{', '.join(list(common)[:3])}' masih ada."
-            else: return "✅ Perbaikan Signifikan."
-        else:
-            if len(new_issues) > 0: return f"📈 Peningkatan: '{', '.join(list(new_issues)[:3])}'."
-            else: return f"🌟 Konsisten Bagus: '{', '.join(list(common)[:3])}'."
+            # 1. Analisis Masalah Lama vs Baru
+            if persistent:
+                items = ", ".join(persistent[:3])
+                narrative.append(f"Perhatian khusus diperlukan pada aspek '{items}' yang masih terus dikeluhkan pasien secara konsisten dari masa lalu hingga sekarang.")
+            else:
+                narrative.append("Kabar baik, keluhan-keluhan dominan di masa lalu sudah tidak signifikan terlihat pada ulasan terkini.")
+
+            # 2. Analisis Isu Baru
+            if new_emerging:
+                items = ", ".join(new_emerging[:3])
+                narrative.append(f"Namun, terdeteksi adanya gelombang keluhan baru terkait '{items}' yang sebelumnya tidak menjadi isu utama. Manajemen disarankan untuk meninjau area ini.")
+            
+            # 3. Closing jika data sedikit
+            if not persistent and not new_emerging:
+                narrative.append("Belum ada pola keluhan yang signifikan pada data terbaru.")
+
+        else: # Analisis Positif
+            # 1. Analisis Konsistensi
+            if persistent:
+                items = ", ".join(persistent[:3])
+                narrative.append(f"Rumah sakit berhasil mempertahankan reputasi baik pada aspek '{items}', yang terus menjadi keunggulan utama di mata pasien.")
+            
+            # 2. Analisis Peningkatan
+            if new_emerging:
+                items = ", ".join(new_emerging[:3])
+                narrative.append(f"Selain itu, terlihat adanya peningkatan kepuasan pasien pada hal-hal baru seperti '{items}', yang mengindikasikan adanya perbaikan layanan.")
+            
+            if not persistent and not new_emerging:
+                narrative.append("Apresiasi pasien tersebar merata tanpa pola dominan yang spesifik saat ini.")
+
+        # Gabungkan list kalimat menjadi satu paragraf string
+        return " ".join(narrative)
     
     # Fungsi generate_plot_bytes untuk PDF (diperlukan untuk app.py)
     def generate_plot_bytes(self, plot_type, data=None):

@@ -205,3 +205,5 @@ def create_comprehensive_report(metrics, stats, learning_curve, wc_pos, wc_neg, 
         pdf.cell(35, 10, f"{score}%", 1, 1, 'C')
 
     return pdf.output(dest='S')
+
+    
