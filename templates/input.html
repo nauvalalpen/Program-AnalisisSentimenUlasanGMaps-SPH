@@ -122,8 +122,10 @@
                   class="fas fa-hospital-alt text-slate-400 group-focus-within:text-brand-600 transition-colors"
                 ></i>
               </div>
+
+              <!-- FIXED SELECT: appearance-none removes default arrow -->
               <select
-                class="block w-full pl-11 pr-10 py-3.5 text-base border-slate-300 rounded-lg bg-slate-50 text-slate-900 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 focus:bg-white transition-all cursor-pointer hover:border-brand-300"
+                class="block w-full pl-11 pr-10 py-3.5 text-base border-slate-300 rounded-lg bg-slate-50 text-slate-900 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 focus:bg-white transition-all cursor-pointer hover:border-brand-300 appearance-none"
                 name="hospital"
                 id="hospital"
                 required
@@ -135,6 +137,8 @@
                 <option value="{{ rs }}">{{ rs }}</option>
                 {% endfor %}
               </select>
+
+              <!-- Custom Arrow Icon -->
               <div
                 class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none"
               >
